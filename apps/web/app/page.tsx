@@ -1,5 +1,5 @@
 async function getMessage() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/message`, {
     cache: 'no-store',
   });
   return res.json();
