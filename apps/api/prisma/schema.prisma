@@ -4,8 +4,8 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -14,14 +14,227 @@ datasource db {
 }
 
 model User {
-  id Int @default(autoincrement()) @id
-  email String @unique
-  nickname String @unique
-  passwordHash  String
+  id String @id @default(cuid())
+
+  email        String @unique
+  passwordHash String
+  nickname     String @unique
+
+  createdWorkTropes WorkTrope[]
+  workTropeVotes    WorkTropeVote[]
+  tropeLikes        TropeLike[]
+  workLikes         WorkLike[]
+  userBooks         UserBook[]
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Author {
+  id    String  @id @default(cuid())
+  olKey String? @unique // OpenLibrary dump파일 데이터 키
+
+  name String
+
+  rawJson Json? // 현재 사용하지 않는 데이터 저장
+
+  works WorkAuthor[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Work {
+  id    String  @id @default(cuid())
+  olKey String? @unique
+
+  title            String
+  description      String?
+  firstPublishDate String?
+  coverId          Int?
+
+  sourceCreatedAt  DateTime?
+  sourceModifiedAt DateTime?
+
+  likeScore Int @default(0)
+
+  authors   WorkAuthor[]
+  subjects  WorkSubject[]
+  tropes    WorkTrope[]
+  editions  Edition[]
+  userBooks UserBook[]
+  likes     WorkLike[]
+
+  rawJson Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([title])
+}
+
+model WorkAuthor {
+  workId   String
+  authorId String
+
+  work   Work   @relation(fields: [workId], references: [id])
+  author Author @relation(fields: [authorId], references: [id])
+
+  @@id([workId, authorId])
+}
+
+// 읽은 책 / 읽을 책
+model UserBook {
+  userId String
+  workId String
+
+  status ReadingStatus
+
+  user User @relation(fields: [userId], references: [id])
+  work Work @relation(fields: [workId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, workId])
+  @@index([workId])
+}
+
+enum ReadingStatus {
+  TO_READ
+  READ
+}
+
+enum WorkTropeSource {
+  AI
+  USER
+  ADMIN
+}
+
+model WorkTrope {
+  workId  String
+  tropeId String
+
+  source WorkTropeSource
+
+  aiConfidence    Float? // AI가 판단한 신뢰도 점수
+  createdByUserId String?
+  createdBy       User?   @relation(fields: [createdByUserId], references: [id])
+
+  work  Work  @relation(fields: [workId], references: [id])
+  trope Trope @relation(fields: [tropeId], references: [id])
+
+  votes     WorkTropeVote[]
+  voteScore Int             @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([workId, tropeId])
+  @@index([tropeId]) // 트로프로 책 검색/필터링
+}
+
+model WorkTropeVote {
+  userId  String
+  workId  String
+  tropeId String
+
+  voteType VoteType
+
+  user      User      @relation(fields: [userId], references: [id])
+  workTrope WorkTrope @relation(fields: [workId, tropeId], references: [workId, tropeId])
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, workId, tropeId])
+}
+
+enum VoteType {
+  UP
+  DOWN
+}
+
+model Edition {
+  id String @id @default(cuid())
+
+  workId String
+
+  isbn10 String?
+  isbn13 String?
+
+  publisher   String? // 출판사
+  publishDate String?
+
+  language  String?
+  pageCount Int?
+
+  coverId Int?
+
+  work Work @relation(fields: [workId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Trope {
-  id Int @default(autoincrement()) @id
-  name String
+  id String @id @default(cuid())
+
+  name        String  @unique
+  description String?
+
+  parentId String?
+  parent   Trope?  @relation("TropeTree", fields: [parentId], references: [id])
+  children Trope[] @relation("TropeTree")
+
+  works WorkTrope[]
+  likes TropeLike[]
+
+  likeScore Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 트로프 좋아요
+model TropeLike {
+  tropeId String
+  userId  String
+
+  trope Trope @relation(fields: [tropeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@id([tropeId, userId])
+}
+
+// 책 좋아요
+model WorkLike {
+  workId String
+  userId String
+
+  work Work @relation(fields: [workId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@id([workId, userId])
+}
+
+// 장르
+model Subject {
+  id    String        @id @default(cuid())
+  name  String        @unique
+  works WorkSubject[]
+}
+
+model WorkSubject {
+  workId    String
+  subjectId String
+
+  work    Work    @relation(fields: [workId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  @@id([workId, subjectId])
+  @@index([subjectId])
 }
