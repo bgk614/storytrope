@@ -11,6 +11,7 @@ import {
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { CreateTropeDto } from '../dtos/trope.dto';
 import { AddBookToTropeDto } from '../dtos/work-trope.dto';
+import { VoteDto } from '../dtos/vote.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { TropeService } from '../services/trope.service';
 import { WorkTropeService } from '../services/work-trope.service';
@@ -55,5 +56,22 @@ export class TropeController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workTropeService.linkTropeToWork(dto.workId, id, user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/like')
+  async like(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.tropeService.toggleLike(id, user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/books/:bookId/vote')
+  async vote(
+    @Param('id') id: string,
+    @Param('bookId') bookId: string,
+    @Body() dto: VoteDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.workTropeService.vote(bookId, id, user.userId, dto.voteType);
   }
 }

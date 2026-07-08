@@ -23,10 +23,7 @@ export class BookController {
   ) {}
 
   @Get()
-  async findAll(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
-  ) {
+  async findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
     return this.workService.works({
       skip: skip ? Number(skip) : undefined,
       take: take ? Number(take) : 20,

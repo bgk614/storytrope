@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client.js';
 import { CreateTropeDto } from '../dtos/trope.dto';
@@ -47,5 +48,43 @@ export class TropeService {
       }
       throw e;
     }
+  }
+
+  async toggleLike(
+    tropeId: string,
+    userId: string,
+  ): Promise<{ liked: boolean; likeScore: number }> {
+    const trope = await this.prisma.trope.findUnique({
+      where: { id: tropeId },
+    });
+    if (!trope) {
+      throw new NotFoundException(`Trope ${tropeId} not found`);
+    }
+
+    const existingLike = await this.prisma.tropeLike.findUnique({
+      where: { tropeId_userId: { tropeId, userId } },
+    });
+
+    if (existingLike) {
+      const [, updated] = await this.prisma.$transaction([
+        this.prisma.tropeLike.delete({
+          where: { tropeId_userId: { tropeId, userId } },
+        }),
+        this.prisma.trope.update({
+          where: { id: tropeId },
+          data: { likeScore: { decrement: 1 } },
+        }),
+      ]);
+      return { liked: false, likeScore: updated.likeScore };
+    }
+
+    const [, updated] = await this.prisma.$transaction([
+      this.prisma.tropeLike.create({ data: { tropeId, userId } }),
+      this.prisma.trope.update({
+        where: { id: tropeId },
+        data: { likeScore: { increment: 1 } },
+      }),
+    ]);
+    return { liked: true, likeScore: updated.likeScore };
   }
 }

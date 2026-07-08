@@ -6,7 +6,8 @@ import { Strategy } from 'passport-jwt';
 import { AuthService, JwtPayload } from '../services/auth.service';
 
 function extractJwtFromCookie(req: Request): string | null {
-  return req?.cookies?.['access_token'] ?? null;
+  const cookies = req?.cookies as Record<string, string> | undefined;
+  return cookies?.['access_token'] ?? null;
 }
 
 export interface AuthenticatedUser {
