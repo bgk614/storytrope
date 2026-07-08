@@ -14,6 +14,7 @@ import { PrismaService } from './services/prisma.service';
 import { TropeService } from './services/trope.service';
 import { UserService } from './services/user.service';
 import { WorkService } from './services/work.service';
+import { WorkTropeService } from './services/work-trope.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
@@ -52,6 +53,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     JwtStrategy,
     WorkService,
     TropeService,
+    WorkTropeService,
   ],
 })
 export class AppModule {}

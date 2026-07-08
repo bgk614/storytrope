@@ -1,15 +1,26 @@
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
   Param,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { AddTropeToBookDto } from '../dtos/work-trope.dto';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { WorkService } from '../services/work.service';
+import { WorkTropeService } from '../services/work-trope.service';
+import type { AuthenticatedUser } from '../strategies/jwt.strategy';
 
 @Controller('books')
 export class BookController {
-  constructor(private readonly workService: WorkService) {}
+  constructor(
+    private readonly workService: WorkService,
+    private readonly workTropeService: WorkTropeService,
+  ) {}
 
   @Get()
   async findAll(
@@ -29,5 +40,20 @@ export class BookController {
       throw new NotFoundException(`Book ${id} not found`);
     }
     return work;
+  }
+
+  @Get(':id/tropes')
+  async findTropes(@Param('id') id: string) {
+    return this.workTropeService.tropesOfWork(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/tropes')
+  async addTrope(
+    @Param('id') id: string,
+    @Body() dto: AddTropeToBookDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.workTropeService.linkTropeToWork(id, dto.tropeId, user.userId);
   }
 }
