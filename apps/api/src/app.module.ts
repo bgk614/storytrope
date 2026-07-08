@@ -5,11 +5,13 @@ import { PassportModule } from '@nestjs/passport';
 import * as Joi from 'joi';
 import { AppController } from './controllers/app.controller';
 import { AuthController } from './controllers/auth.controller';
+import { BookController } from './controllers/book.controller';
 import { UserController } from './controllers/user.controller';
 import { AppService } from './services/app.service';
 import { AuthService } from './services/auth.service';
 import { PrismaService } from './services/prisma.service';
 import { UserService } from './services/user.service';
+import { WorkService } from './services/work.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
@@ -33,13 +35,14 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       }),
     }),
   ],
-  controllers: [AppController, UserController, AuthController],
+  controllers: [AppController, UserController, AuthController, BookController],
   providers: [
     AppService,
     PrismaService,
     UserService,
     AuthService,
     JwtStrategy,
+    WorkService,
   ],
 })
 export class AppModule {}
