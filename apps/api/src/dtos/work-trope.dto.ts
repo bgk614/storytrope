@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator'
 
 export class AddTropeToBookDto {
   @IsNotEmpty()
   @IsString()
-  tropeId: string;
+  tropeId: string
 }
 
 export class AddBookToTropeDto {
   @IsNotEmpty()
   @IsString()
-  workId: string;
+  workId: string
 }

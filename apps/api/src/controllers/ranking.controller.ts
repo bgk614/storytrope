@@ -1,26 +1,18 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { RankingPeriod, RankingService } from '../services/ranking.service';
+import { Controller, Get, Query } from '@nestjs/common'
+import { RankingPeriod, RankingService } from '../services/ranking.service'
 
-const VALID_PERIODS: RankingPeriod[] = ['weekly', 'monthly', 'yearly'];
+const VALID_PERIODS: RankingPeriod[] = ['weekly', 'monthly', 'yearly']
 
 @Controller('rankings')
 export class RankingController {
   constructor(private readonly rankingService: RankingService) {}
 
   @Get('tropes')
-  async topTropes(
-    @Query('period') period?: string,
-    @Query('take') take?: string,
-  ) {
-    const resolvedPeriod: RankingPeriod = VALID_PERIODS.includes(
-      period as RankingPeriod,
-    )
+  async topTropes(@Query('period') period?: string, @Query('take') take?: string) {
+    const resolvedPeriod: RankingPeriod = VALID_PERIODS.includes(period as RankingPeriod)
       ? (period as RankingPeriod)
-      : 'weekly';
+      : 'weekly'
 
-    return this.rankingService.topTropes(
-      resolvedPeriod,
-      take ? Number(take) : 10,
-    );
+    return this.rankingService.topTropes(resolvedPeriod, take ? Number(take) : 10)
   }
 }
