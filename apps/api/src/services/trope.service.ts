@@ -87,4 +87,57 @@ export class TropeService {
     ]);
     return { liked: true, likeScore: updated.likeScore };
   }
+
+  async children(tropeId: string) {
+    const trope = await this.prisma.trope.findUnique({
+      where: { id: tropeId },
+    });
+    if (!trope) {
+      throw new NotFoundException(`Trope ${tropeId} not found`);
+    }
+
+    return this.prisma.trope.findMany({
+      where: { parentId: tropeId },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async setParent(tropeId: string, parentId: string | null) {
+    const trope = await this.prisma.trope.findUnique({
+      where: { id: tropeId },
+    });
+    if (!trope) {
+      throw new NotFoundException(`Trope ${tropeId} not found`);
+    }
+
+    if (parentId !== null) {
+      if (parentId === tropeId) {
+        throw new BadRequestException('A trope cannot be its own parent');
+      }
+
+      let cursor = await this.prisma.trope.findUnique({
+        where: { id: parentId },
+      });
+      if (!cursor) {
+        throw new NotFoundException(`Parent trope ${parentId} not found`);
+      }
+
+      while (cursor.parentId) {
+        if (cursor.parentId === tropeId) {
+          throw new BadRequestException(
+            'Assigning this parent would create a circular hierarchy',
+          );
+        }
+        cursor = await this.prisma.trope.findUnique({
+          where: { id: cursor.parentId },
+        });
+        if (!cursor) break;
+      }
+    }
+
+    return this.prisma.trope.update({
+      where: { id: tropeId },
+      data: { parentId },
+    });
+  }
 }

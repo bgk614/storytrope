@@ -6,11 +6,13 @@ import * as Joi from 'joi';
 import { AppController } from './controllers/app.controller';
 import { AuthController } from './controllers/auth.controller';
 import { BookController } from './controllers/book.controller';
+import { RankingController } from './controllers/ranking.controller';
 import { TropeController } from './controllers/trope.controller';
 import { UserController } from './controllers/user.controller';
 import { AppService } from './services/app.service';
 import { AuthService } from './services/auth.service';
 import { PrismaService } from './services/prisma.service';
+import { RankingService } from './services/ranking.service';
 import { TropeService } from './services/trope.service';
 import { UserService } from './services/user.service';
 import { WorkService } from './services/work.service';
@@ -44,6 +46,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AuthController,
     BookController,
     TropeController,
+    RankingController,
   ],
   providers: [
     AppService,
@@ -54,6 +57,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     WorkService,
     TropeService,
     WorkTropeService,
+    RankingService,
   ],
 })
 export class AppModule {}

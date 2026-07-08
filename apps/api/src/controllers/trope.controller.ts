@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -11,6 +12,7 @@ import {
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { CreateTropeDto } from '../dtos/trope.dto';
 import { AddBookToTropeDto } from '../dtos/work-trope.dto';
+import { SetParentDto } from '../dtos/set-parent.dto';
 import { VoteDto } from '../dtos/vote.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { TropeService } from '../services/trope.service';
@@ -46,6 +48,16 @@ export class TropeController {
   @Get(':id/books')
   async findBooks(@Param('id') id: string) {
     return this.workTropeService.worksOfTrope(id);
+  }
+
+  @Get(':id/children')
+  async findChildren(@Param('id') id: string) {
+    return this.tropeService.children(id);
+  }
+
+  @Patch(':id/parent')
+  async setParent(@Param('id') id: string, @Body() dto: SetParentDto) {
+    return this.tropeService.setParent(id, dto.parentId);
   }
 
   @UseGuards(JwtAuthGuard)
