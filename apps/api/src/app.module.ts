@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import * as Joi from 'joi';
 import { AppController } from './controllers/app.controller';
+import { AuthController } from './controllers/auth.controller';
 import { UserController } from './controllers/user.controller';
 import { AppService } from './services/app.service';
+import { AuthService } from './services/auth.service';
 import { PrismaService } from './services/prisma.service';
 import { UserService } from './services/user.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -16,10 +21,25 @@ import { UserService } from './services/user.service';
         PORT: Joi.number().default(3000),
         BACK_URL: Joi.string().required(),
         FRONT_URL: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        SESSION_DAYS: Joi.number().default(7),
+      }),
+    }),
+    PassportModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
       }),
     }),
   ],
-  controllers: [AppController, UserController],
-  providers: [AppService, PrismaService, UserService],
+  controllers: [AppController, UserController, AuthController],
+  providers: [
+    AppService,
+    PrismaService,
+    UserService,
+    AuthService,
+    JwtStrategy,
+  ],
 })
 export class AppModule {}
