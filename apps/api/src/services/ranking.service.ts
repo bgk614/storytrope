@@ -37,7 +37,7 @@ export class RankingService {
     }
 
     const topTropeIds = [...scoreByTropeId.entries()]
-      .sort((a, b) => b[1] - a[1])
+      .toSorted((a, b) => b[1] - a[1])
       .slice(0, take)
       .map(([tropeId]) => tropeId);
 

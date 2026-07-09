@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import path from 'node:path';
 
 @Injectable()
 export class AppService {
   async getMessage() {
-    const filePath = join(process.cwd(), 'data', 'test.txt');
+    const filePath = path.join(process.cwd(), 'data', 'test.txt');
 
-    const content = await readFile(filePath, 'utf-8');
+    const content = await readFile(filePath, 'utf8');
 
     return {
       message: content,

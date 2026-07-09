@@ -32,7 +32,18 @@ export default defineConfig(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      // project compiles to CommonJS (no "type": "module" in package.json), which doesn't support top-level await
+      'unicorn/prefer-top-level-await': 'off',
+      // Prisma (`where: { field: null }`) and passport-jwt's JwtFromRequestFunction type both require literal null
+      'unicorn/no-null': 'off',
       'prettier/prettier': ['error', { endOfLine: 'auto' }]
+    }
+  },
+  {
+    // `*.e2e-spec.ts` is Nest's standard e2e test naming convention, matched by test/jest-e2e.json's testRegex
+    files: ['test/**/*.e2e-spec.ts'],
+    rules: {
+      'unicorn/prevent-abbreviations': 'off'
     }
   }
 )

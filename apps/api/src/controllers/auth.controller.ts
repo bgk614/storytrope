@@ -15,12 +15,12 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() dto: LoginDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<{ success: true }> {
     const user = await this.authService.validateUser(dto.email, dto.password);
     const { token, expiresAt } = await this.authService.login(user);
 
-    res.cookie(ACCESS_TOKEN_COOKIE, token, {
+    response.cookie(ACCESS_TOKEN_COOKIE, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -35,10 +35,10 @@ export class AuthController {
   @Delete('logout')
   async logout(
     @CurrentUser() user: AuthenticatedUser,
-    @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<{ success: true }> {
     await this.authService.logout(user.sessionId);
-    res.clearCookie(ACCESS_TOKEN_COOKIE, { path: '/' });
+    response.clearCookie(ACCESS_TOKEN_COOKIE, { path: '/' });
     return { success: true };
   }
 }

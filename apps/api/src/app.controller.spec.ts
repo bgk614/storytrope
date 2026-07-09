@@ -14,9 +14,11 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('message', () => {
+    it('should return the file content', async () => {
+      await expect(appController.getMessage()).resolves.toEqual({
+        message: 'StoryTrope TEST',
+      });
     });
   });
 });
