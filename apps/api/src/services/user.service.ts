@@ -12,14 +12,14 @@ export class UserService {
       where: userWhereUniqueInput
     })
   }
-  async users(params: {
+  async users(parameters: {
     skip?: number
     take?: number
     cursor?: Prisma.UserWhereUniqueInput
     where?: Prisma.UserWhereInput
     orderBy?: Prisma.UserOrderByWithRelationInput
   }): Promise<User[]> {
-    const { skip, take, cursor, where, orderBy } = params
+    const { skip, take, cursor, where, orderBy } = parameters
     return this.prisma.user.findMany({
       skip,
       take,
@@ -40,11 +40,11 @@ export class UserService {
       }
     })
   }
-  async updateUser(params: {
+  async updateUser(parameters: {
     where: Prisma.UserWhereUniqueInput
     data: Prisma.UserUpdateInput
   }): Promise<User> {
-    const { where, data } = params
+    const { where, data } = parameters
     return this.prisma.user.update({
       data,
       where

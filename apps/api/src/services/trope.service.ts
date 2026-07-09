@@ -12,8 +12,8 @@ import { PrismaService } from './prisma.service'
 export class TropeService {
   constructor(private prisma: PrismaService) {}
 
-  async tropes(params: { topLevelOnly?: boolean }) {
-    const { topLevelOnly } = params
+  async tropes(parameters: { topLevelOnly?: boolean }) {
+    const { topLevelOnly } = parameters
     return this.prisma.trope.findMany({
       where: topLevelOnly ? { parentId: null } : undefined,
       orderBy: { name: 'asc' }
@@ -33,16 +33,16 @@ export class TropeService {
           parentId: dto.parentId
         }
       })
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
           throw new ConflictException(`Trope with name "${dto.name}" already exists`)
         }
-        if (e.code === 'P2003') {
+        if (error.code === 'P2003') {
           throw new BadRequestException(`Parent trope ${dto.parentId} does not exist`)
         }
       }
-      throw e
+      throw error
     }
   }
 

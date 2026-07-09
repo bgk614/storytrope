@@ -5,8 +5,8 @@ import { Request } from 'express'
 import { Strategy } from 'passport-jwt'
 import { AuthService, JwtPayload } from '../services/auth.service'
 
-function extractJwtFromCookie(req: Request): string | null {
-  const cookies = req?.cookies as Record<string, string> | undefined
+function extractJwtFromCookie(request: Request): string | null {
+  const cookies = request?.cookies as Record<string, string> | undefined
   return cookies?.['access_token'] ?? null
 }
 

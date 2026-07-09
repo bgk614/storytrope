@@ -60,11 +60,11 @@ export class WorkTropeService {
         },
         include: { trope: true, work: true }
       })
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new ConflictException(`Trope ${tropeId} is already linked to book ${workId}`)
       }
-      throw e
+      throw error
     }
   }
 

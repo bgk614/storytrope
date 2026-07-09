@@ -11,8 +11,8 @@ const workListInclude = {
 export class WorkService {
   constructor(private prisma: PrismaService) {}
 
-  async works(params: { skip?: number; take?: number }) {
-    const { skip, take } = params
+  async works(parameters: { skip?: number; take?: number }) {
+    const { skip, take } = parameters
     return this.prisma.work.findMany({
       skip,
       take,
