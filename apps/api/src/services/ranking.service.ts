@@ -47,6 +47,7 @@ export class RankingService {
 
     const tropes = await this.prisma.trope.findMany({
       where: { id: { in: topTropeIds } },
+      omit: { description: true },
     });
     const tropeById = new Map(tropes.map((t) => [t.id, t]));
 

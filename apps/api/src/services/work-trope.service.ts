@@ -18,7 +18,7 @@ export class WorkTropeService {
 
     const workTropes = await this.prisma.workTrope.findMany({
       where: { workId },
-      include: { trope: true },
+      include: { trope: { omit: { description: true } } },
     });
     return workTropes.map((wt) => wt.trope);
   }
@@ -58,7 +58,7 @@ export class WorkTropeService {
           source: WorkTropeSource.USER,
           createdByUserId: userId,
         },
-        include: { trope: true, work: true },
+        include: { trope: { omit: { description: true } }, work: true },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

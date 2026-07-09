@@ -17,11 +17,12 @@ export class TropeService {
     return this.prisma.trope.findMany({
       where: topLevelOnly ? { parentId: null } : undefined,
       orderBy: { name: 'asc' },
+      omit: { description: true },
     });
   }
 
   async trope(where: Prisma.TropeWhereUniqueInput) {
-    return this.prisma.trope.findUnique({ where });
+    return this.prisma.trope.findUnique({ where, omit: { description: true } });
   }
 
   async createTrope(dto: CreateTropeDto) {
@@ -32,6 +33,7 @@ export class TropeService {
           description: dto.description,
           parentId: dto.parentId,
         },
+        omit: { description: true },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -95,6 +97,7 @@ export class TropeService {
     return this.prisma.trope.findMany({
       where: { parentId: tropeId },
       orderBy: { name: 'asc' },
+      omit: { description: true },
     });
   }
 
@@ -132,6 +135,7 @@ export class TropeService {
     return this.prisma.trope.update({
       where: { id: tropeId },
       data: { parentId },
+      omit: { description: true },
     });
   }
 }

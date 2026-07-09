@@ -4,7 +4,7 @@ import { PrismaService } from './prisma.service';
 
 const workListInclude = {
   authors: { include: { author: true } },
-  tropes: { include: { trope: true } },
+  tropes: { include: { trope: { omit: { description: true } } } },
 } satisfies Prisma.WorkInclude;
 
 @Injectable()
