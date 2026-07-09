@@ -1,0 +1,59 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { addTropeToBook } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
+
+export function AddTropeToBookForm({ bookId }: { bookId: string }) {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [tropeId, setTropeId] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!user) {
+    return (
+      <p className="text-sm text-black/50 dark:text-white/50">
+        Log in to link a trope to this book.
+      </p>
+    );
+  }
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      await addTropeToBook(bookId, tropeId.trim());
+      setTropeId("");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to link the trope.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-start">
+      <div className="flex flex-1 flex-col gap-1">
+        <input
+          value={tropeId}
+          onChange={(e) => setTropeId(e.target.value)}
+          required
+          placeholder="Trope ID (found in the trope's page URL)"
+          className="rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent"
+        />
+        {error && <p className="text-xs text-red-600">{error}</p>}
+      </div>
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-md bg-foreground px-4 py-2 text-sm text-background hover:opacity-90 disabled:opacity-50"
+      >
+        {submitting ? "Linking..." : "Link Trope"}
+      </button>
+    </form>
+  );
+}
