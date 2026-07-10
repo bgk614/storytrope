@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { LoginDto } from '../dtos/auth.dto';
@@ -12,6 +13,7 @@ const ACCESS_TOKEN_COOKIE = 'access_token';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('login')
   async login(
     @Body() dto: LoginDto,

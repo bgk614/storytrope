@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { TerminusModule } from '@nestjs/terminus';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import * as Joi from 'joi';
 import { AppController } from './controllers/app.controller';
 import { AuthController } from './controllers/auth.controller';
 import { BookController } from './controllers/book.controller';
+import { HealthController } from './controllers/health.controller';
 import { RankingController } from './controllers/ranking.controller';
 import { TropeController } from './controllers/trope.controller';
 import { UserController } from './controllers/user.controller';
@@ -28,6 +32,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         PORT: Joi.number().default(3000),
         BACK_URL: Joi.string().required(),
         FRONT_URL: Joi.string().required(),
+        DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         SESSION_DAYS: Joi.number().default(7),
       }),
@@ -39,6 +44,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         secret: configService.getOrThrow<string>('JWT_SECRET'),
       }),
     }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
+    TerminusModule.forRoot(),
   ],
   controllers: [
     AppController,
@@ -47,6 +54,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     BookController,
     TropeController,
     RankingController,
+    HealthController,
   ],
   providers: [
     AppService,
@@ -58,6 +66,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     TropeService,
     WorkTropeService,
     RankingService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule {}
