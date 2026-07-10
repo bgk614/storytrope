@@ -1,0 +1,13 @@
+pnpm exec lint-staged || exit 1
+
+CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if echo "$CHANGED_FILES" | grep -q '^apps/api/'; then
+  echo "==> apps/api: build & test"
+  (cd apps/api && pnpm run build && pnpm run test) || exit 1
+fi
+
+if echo "$CHANGED_FILES" | grep -q '^apps/web/'; then
+  echo "==> apps/web: build"
+  (cd apps/web && pnpm run build) || exit 1
+fi
