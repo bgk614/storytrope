@@ -29,15 +29,28 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
+// useSyncExternalStore compares snapshots with Object.is, so getSnapshot must
+// return the same object until the stored value actually changes — parsing
+// fresh on every call would trigger an infinite re-render loop.
+let cachedRaw: string | null = null;
+let cachedUser: AuthUser | null = null;
+
 function getSnapshot(): AuthUser | null {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as AuthUser;
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
+  if (raw === cachedRaw) return cachedUser;
+  cachedRaw = raw;
+  if (!raw) {
+    cachedUser = null;
     return null;
   }
+  try {
+    cachedUser = JSON.parse(raw) as AuthUser;
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+    cachedRaw = null;
+    cachedUser = null;
+  }
+  return cachedUser;
 }
 
 function getServerSnapshot(): AuthUser | null {
