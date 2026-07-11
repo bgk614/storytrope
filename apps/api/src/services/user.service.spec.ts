@@ -86,6 +86,7 @@ describe('UserService', () => {
       expect(bcrypt.hash).toHaveBeenCalledWith('plain-pw', 10);
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: { email: 'a@b.com', nickname: 'nick', passwordHash: 'hashed-pw' },
+        omit: { passwordHash: true },
       });
       expect(result).toBe(created);
     });

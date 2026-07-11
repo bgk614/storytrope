@@ -28,7 +28,7 @@ export class UserService {
       orderBy,
     });
   }
-  async createUser(dto: CreateUserDto): Promise<User> {
+  async createUser(dto: CreateUserDto): Promise<Omit<User, 'passwordHash'>> {
     const saltOrRounds = 10;
     const passwordHash = await bcrypt.hash(dto.password, saltOrRounds);
 
@@ -38,6 +38,7 @@ export class UserService {
         nickname: dto.nickname,
         passwordHash: passwordHash,
       },
+      omit: { passwordHash: true },
     });
   }
   async updateUser(parameters: {

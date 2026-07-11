@@ -10,7 +10,7 @@ export class UserController {
 
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('user')
-  async signupUser(@Body() createUserDto: CreateUserDto): Promise<UserModel> {
+  async signupUser(@Body() createUserDto: CreateUserDto): Promise<Omit<UserModel, 'passwordHash'>> {
     return this.userService.createUser(createUserDto);
   }
 }
