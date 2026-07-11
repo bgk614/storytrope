@@ -1,0 +1,14 @@
+node_modules
+dist
+generated
+coverage
+data
+test
+.env
+.env.*
+!.env.example
+Dockerfile
+docker-compose*.yml
+.dockerignore
+*.md
+.DS_Store
