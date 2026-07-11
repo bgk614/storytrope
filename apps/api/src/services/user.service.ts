@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Prisma, User } from '../../generated/prisma/client.js';
 import { CreateUserDto } from '../dtos/user.dto.js';
@@ -32,14 +32,23 @@ export class UserService {
     const saltOrRounds = 10;
     const passwordHash = await bcrypt.hash(dto.password, saltOrRounds);
 
-    return this.prisma.user.create({
-      data: {
-        email: dto.email,
-        nickname: dto.nickname,
-        passwordHash: passwordHash,
-      },
-      omit: { passwordHash: true },
-    });
+    try {
+      return await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          nickname: dto.nickname,
+          passwordHash: passwordHash,
+        },
+        omit: { passwordHash: true },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const target = (error.meta?.target as string[] | undefined) ?? [];
+        const field = target.includes('nickname') ? 'nickname' : 'email';
+        throw new ConflictException(`A user with this ${field} already exists`);
+      }
+      throw error;
+    }
   }
   async updateUser(parameters: {
     where: Prisma.UserWhereUniqueInput;

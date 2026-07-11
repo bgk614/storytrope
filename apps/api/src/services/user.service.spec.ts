@@ -1,9 +1,19 @@
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
+import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from './prisma.service';
 import { UserService } from './user.service';
 
 jest.mock('bcrypt');
+
+function uniqueViolation(target: string[]) {
+  return new Prisma.PrismaClientKnownRequestError('mock error', {
+    code: 'P2002',
+    clientVersion: 'test',
+    meta: { target },
+  });
+}
 
 describe('UserService', () => {
   let service: UserService;
@@ -89,6 +99,36 @@ describe('UserService', () => {
         omit: { passwordHash: true },
       });
       expect(result).toBe(created);
+    });
+
+    it('maps a duplicate email to ConflictException', async () => {
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-pw');
+      prisma.user.create.mockRejectedValue(uniqueViolation(['email']));
+
+      const dto = { email: 'a@b.com', password: 'pw', nickname: 'nick' };
+      await expect(service.createUser(dto)).rejects.toThrow(ConflictException);
+      await expect(service.createUser(dto)).rejects.toThrow(
+        'A user with this email already exists',
+      );
+    });
+
+    it('maps a duplicate nickname to ConflictException', async () => {
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-pw');
+      prisma.user.create.mockRejectedValue(uniqueViolation(['nickname']));
+
+      await expect(
+        service.createUser({ email: 'a@b.com', password: 'pw', nickname: 'nick' }),
+      ).rejects.toThrow('A user with this nickname already exists');
+    });
+
+    it('rethrows unknown errors untouched', async () => {
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed-pw');
+      const boom = new Error('db down');
+      prisma.user.create.mockRejectedValue(boom);
+
+      await expect(
+        service.createUser({ email: 'a@b.com', password: 'pw', nickname: 'nick' }),
+      ).rejects.toBe(boom);
     });
   });
 
