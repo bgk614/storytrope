@@ -80,6 +80,7 @@ model Work {
   updatedAt DateTime @updatedAt
 
   @@index([title])
+  @@index([createdAt]) // 책 목록 최신순 정렬
 }
 
 model WorkAuthor {
@@ -156,6 +157,7 @@ model WorkTropeVote {
   createdAt DateTime @default(now())
 
   @@id([userId, workId, tropeId])
+  @@index([createdAt]) // 랭킹 기간 필터
 }
 
 enum VoteType {
@@ -202,6 +204,8 @@ model Trope {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([parentId]) // 하위 트로프 / 최상위 필터 조회
 }
 
 // 트로프 좋아요
@@ -215,6 +219,7 @@ model TropeLike {
   createdAt DateTime @default(now())
 
   @@id([tropeId, userId])
+  @@index([createdAt]) // 랭킹 기간 필터
 }
 
 // 책 좋아요

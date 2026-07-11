@@ -16,24 +16,26 @@ export class RankingService {
   async topTropes(period: RankingPeriod, take: number) {
     const since = new Date(Date.now() - PERIOD_MS[period]);
 
-    const [votes, likes] = await Promise.all([
-      this.prisma.workTropeVote.findMany({
+    const [voteGroups, likeGroups] = await Promise.all([
+      this.prisma.workTropeVote.groupBy({
+        by: ['tropeId', 'voteType'],
         where: { createdAt: { gte: since } },
-        select: { tropeId: true, voteType: true },
+        _count: true,
       }),
-      this.prisma.tropeLike.findMany({
+      this.prisma.tropeLike.groupBy({
+        by: ['tropeId'],
         where: { createdAt: { gte: since } },
-        select: { tropeId: true },
+        _count: true,
       }),
     ]);
 
     const scoreByTropeId = new Map<string, number>();
-    for (const vote of votes) {
-      const delta = vote.voteType === 'UP' ? 1 : -1;
-      scoreByTropeId.set(vote.tropeId, (scoreByTropeId.get(vote.tropeId) ?? 0) + delta);
+    for (const group of voteGroups) {
+      const delta = (group.voteType === 'UP' ? 1 : -1) * group._count;
+      scoreByTropeId.set(group.tropeId, (scoreByTropeId.get(group.tropeId) ?? 0) + delta);
     }
-    for (const like of likes) {
-      scoreByTropeId.set(like.tropeId, (scoreByTropeId.get(like.tropeId) ?? 0) + 1);
+    for (const group of likeGroups) {
+      scoreByTropeId.set(group.tropeId, (scoreByTropeId.get(group.tropeId) ?? 0) + group._count);
     }
 
     const topTropeIds = [...scoreByTropeId.entries()]

@@ -5,15 +5,15 @@ import { RankingService } from './ranking.service';
 describe('RankingService', () => {
   let service: RankingService;
   let prisma: {
-    workTropeVote: { findMany: jest.Mock };
-    tropeLike: { findMany: jest.Mock };
+    workTropeVote: { groupBy: jest.Mock };
+    tropeLike: { groupBy: jest.Mock };
     trope: { findMany: jest.Mock };
   };
 
   beforeEach(async () => {
     prisma = {
-      workTropeVote: { findMany: jest.fn() },
-      tropeLike: { findMany: jest.fn() },
+      workTropeVote: { groupBy: jest.fn() },
+      tropeLike: { groupBy: jest.fn() },
       trope: { findMany: jest.fn() },
     };
 
@@ -29,8 +29,8 @@ describe('RankingService', () => {
   });
 
   it('returns an empty array when there are no votes or likes', async () => {
-    prisma.workTropeVote.findMany.mockResolvedValue([]);
-    prisma.tropeLike.findMany.mockResolvedValue([]);
+    prisma.workTropeVote.groupBy.mockResolvedValue([]);
+    prisma.tropeLike.groupBy.mockResolvedValue([]);
 
     const result = await service.topTropes('weekly', 10);
 
@@ -38,21 +38,20 @@ describe('RankingService', () => {
     expect(prisma.trope.findMany).not.toHaveBeenCalled();
   });
 
-  it('aggregates UP/DOWN votes and likes into a score, sorted descending', async () => {
-    prisma.workTropeVote.findMany.mockResolvedValue([
-      { tropeId: 'trope-1', voteType: 'UP' },
-      { tropeId: 'trope-1', voteType: 'UP' },
-      { tropeId: 'trope-2', voteType: 'UP' },
-      { tropeId: 'trope-2', voteType: 'DOWN' },
-      { tropeId: 'trope-3', voteType: 'DOWN' },
+  it('aggregates UP/DOWN vote counts and likes into a score, sorted descending', async () => {
+    prisma.workTropeVote.groupBy.mockResolvedValue([
+      { tropeId: 'trope-1', voteType: 'UP', _count: 2 },
+      { tropeId: 'trope-2', voteType: 'UP', _count: 1 },
+      { tropeId: 'trope-2', voteType: 'DOWN', _count: 1 },
+      { tropeId: 'trope-3', voteType: 'DOWN', _count: 1 },
     ]);
-    prisma.tropeLike.findMany.mockResolvedValue([{ tropeId: 'trope-2' }, { tropeId: 'trope-2' }]);
+    prisma.tropeLike.groupBy.mockResolvedValue([{ tropeId: 'trope-2', _count: 2 }]);
     prisma.trope.findMany.mockResolvedValue([
       { id: 'trope-1', name: 'A' },
       { id: 'trope-2', name: 'B' },
     ]);
 
-    // trope-1 score: 2 (UP + UP)
+    // trope-1 score: 2 (UP x2)
     // trope-2 score: 1 (UP) - 1 (DOWN) + 2 (likes) = 2
     // trope-3 score: -1 (DOWN)
     // trope-1 and trope-2 tie at 2; stable sort keeps insertion order (trope-1 first)
@@ -69,12 +68,11 @@ describe('RankingService', () => {
   });
 
   it('limits results to the requested take', async () => {
-    prisma.workTropeVote.findMany.mockResolvedValue([
-      { tropeId: 'trope-1', voteType: 'UP' },
-      { tropeId: 'trope-2', voteType: 'UP' },
-      { tropeId: 'trope-2', voteType: 'UP' },
+    prisma.workTropeVote.groupBy.mockResolvedValue([
+      { tropeId: 'trope-1', voteType: 'UP', _count: 1 },
+      { tropeId: 'trope-2', voteType: 'UP', _count: 2 },
     ]);
-    prisma.tropeLike.findMany.mockResolvedValue([]);
+    prisma.tropeLike.groupBy.mockResolvedValue([]);
     prisma.trope.findMany.mockResolvedValue([{ id: 'trope-2', name: 'B' }]);
 
     const result = await service.topTropes('monthly', 1);
@@ -88,14 +86,14 @@ describe('RankingService', () => {
   });
 
   it('queries votes/likes since the start of the requested period', async () => {
-    prisma.workTropeVote.findMany.mockResolvedValue([]);
-    prisma.tropeLike.findMany.mockResolvedValue([]);
+    prisma.workTropeVote.groupBy.mockResolvedValue([]);
+    prisma.tropeLike.groupBy.mockResolvedValue([]);
 
     const before = Date.now();
     await service.topTropes('yearly', 10);
     const after = Date.now();
 
-    const calls = prisma.workTropeVote.findMany.mock.calls as Array<
+    const calls = prisma.workTropeVote.groupBy.mock.calls as Array<
       [{ where: { createdAt: { gte: Date } } }]
     >;
     const sinceArgument = calls[0][0].where.createdAt.gte;
