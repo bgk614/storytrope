@@ -49,8 +49,6 @@ model Author {
 
   name String
 
-  rawJson Json? // 현재 사용하지 않는 데이터 저장
-
   works WorkAuthor[]
 
   createdAt DateTime @default(now())
@@ -77,8 +75,6 @@ model Work {
   editions  Edition[]
   userBooks UserBook[]
   likes     WorkLike[]
-
-  rawJson Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
