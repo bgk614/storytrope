@@ -24,23 +24,15 @@ describe('RankingController', () => {
   it('defaults to weekly period and take of 10 when omitted', async () => {
     rankingService.topTropes.mockResolvedValue([]);
 
-    await controller.topTropes();
+    await controller.topTropes({});
 
     expect(rankingService.topTropes).toHaveBeenCalledWith('weekly', 10);
   });
 
-  it('falls back to weekly for an invalid period value', async () => {
+  it('passes through a validated period and take', async () => {
     rankingService.topTropes.mockResolvedValue([]);
 
-    await controller.topTropes('not-a-period', '5');
-
-    expect(rankingService.topTropes).toHaveBeenCalledWith('weekly', 5);
-  });
-
-  it('passes through a valid period and numeric take', async () => {
-    rankingService.topTropes.mockResolvedValue([]);
-
-    await controller.topTropes('monthly', '25');
+    await controller.topTropes({ period: 'monthly', take: 25 });
 
     expect(rankingService.topTropes).toHaveBeenCalledWith('monthly', 25);
   });

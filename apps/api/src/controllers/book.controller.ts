@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { ListBooksQueryDto } from '../dtos/book.dto';
 import { AddTropeToBookDto } from '../dtos/work-trope.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { WorkService } from '../services/work.service';
@@ -23,10 +24,10 @@ export class BookController {
   ) {}
 
   @Get()
-  async findAll(@Query('skip') skip?: string, @Query('take') take?: string) {
+  async findAll(@Query() query: ListBooksQueryDto) {
     return this.workService.works({
-      skip: skip ? Number(skip) : undefined,
-      take: take ? Number(take) : 20,
+      skip: query.skip,
+      take: query.take ?? 20,
     });
   }
 

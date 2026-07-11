@@ -1,18 +1,13 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { RankingPeriod, RankingService } from '../services/ranking.service';
-
-const VALID_PERIODS: Set<RankingPeriod> = new Set(['weekly', 'monthly', 'yearly']);
+import { TopTropesQueryDto } from '../dtos/ranking.dto';
+import { RankingService } from '../services/ranking.service';
 
 @Controller('rankings')
 export class RankingController {
   constructor(private readonly rankingService: RankingService) {}
 
   @Get('tropes')
-  async topTropes(@Query('period') period?: string, @Query('take') take?: string) {
-    const resolvedPeriod: RankingPeriod = VALID_PERIODS.has(period as RankingPeriod)
-      ? (period as RankingPeriod)
-      : 'weekly';
-
-    return this.rankingService.topTropes(resolvedPeriod, take ? Number(take) : 10);
+  async topTropes(@Query() query: TopTropesQueryDto) {
+    return this.rankingService.topTropes(query.period ?? 'weekly', query.take ?? 10);
   }
 }

@@ -33,15 +33,15 @@ describe('BookController', () => {
     it('defaults take to 20 and leaves skip undefined when not provided', async () => {
       workService.works.mockResolvedValue([]);
 
-      await controller.findAll();
+      await controller.findAll({});
 
       expect(workService.works).toHaveBeenCalledWith({ skip: undefined, take: 20 });
     });
 
-    it('parses numeric skip/take query params', async () => {
+    it('passes through validated skip/take query params', async () => {
       workService.works.mockResolvedValue([]);
 
-      await controller.findAll('5', '15');
+      await controller.findAll({ skip: 5, take: 15 });
 
       expect(workService.works).toHaveBeenCalledWith({ skip: 5, take: 15 });
     });
