@@ -35,6 +35,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         SESSION_DAYS: Joi.number().default(7),
+        TRUST_PROXY_HOPS: Joi.number().integer().min(0).default(0),
       }),
     }),
     PassportModule,
