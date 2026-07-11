@@ -26,6 +26,7 @@ export class TropeController {
     private readonly workTropeService: WorkTropeService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() dto: CreateTropeDto) {
     return this.tropeService.createTrope(dto);
@@ -55,6 +56,7 @@ export class TropeController {
     return this.tropeService.children(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/parent')
   async setParent(@Param('id') id: string, @Body() dto: SetParentDto) {
     return this.tropeService.setParent(id, dto.parentId);

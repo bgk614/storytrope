@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createTrope } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 export function CreateTropeForm() {
+  const { user } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -14,6 +16,10 @@ export function CreateTropeForm() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (!user) {
+      setError("Log in to create a trope.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
