@@ -1,11 +1,10 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../services/prisma.service';
+import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
-import { PrismaService } from './prisma.service';
-import { UserService } from './user.service';
 
 jest.mock('bcrypt');
 
@@ -14,8 +13,7 @@ describe('AuthService', () => {
   let prisma: {
     session: { create: jest.Mock; deleteMany: jest.Mock; findUnique: jest.Mock };
   };
-  let userService: { user: jest.Mock };
-  let jwtService: { sign: jest.Mock };
+  let userService: { findByEmail: jest.Mock };
   let configService: { get: jest.Mock };
 
   beforeEach(async () => {
@@ -26,8 +24,7 @@ describe('AuthService', () => {
         findUnique: jest.fn(),
       },
     };
-    userService = { user: jest.fn() };
-    jwtService = { sign: jest.fn() };
+    userService = { findByEmail: jest.fn() };
     configService = { get: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -35,7 +32,6 @@ describe('AuthService', () => {
         AuthService,
         { provide: PrismaService, useValue: prisma },
         { provide: UserService, useValue: userService },
-        { provide: JwtService, useValue: jwtService },
         { provide: ConfigService, useValue: configService },
       ],
     }).compile();
@@ -49,13 +45,13 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('throws when no user matches the email', async () => {
-      userService.user.mockResolvedValue(null);
+      userService.findByEmail.mockResolvedValue(null);
 
       await expect(service.validateUser('a@b.com', 'pw')).rejects.toThrow(UnauthorizedException);
     });
 
     it('throws when the password does not match', async () => {
-      userService.user.mockResolvedValue({ passwordHash: 'hash' });
+      userService.findByEmail.mockResolvedValue({ passwordHash: 'hash' });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(service.validateUser('a@b.com', 'wrong')).rejects.toThrow(UnauthorizedException);
@@ -63,7 +59,7 @@ describe('AuthService', () => {
 
     it('returns the user when the password matches', async () => {
       const user = { id: 'user-1', passwordHash: 'hash' };
-      userService.user.mockResolvedValue(user);
+      userService.findByEmail.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validateUser('a@b.com', 'correct');
@@ -74,32 +70,39 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('creates a session and signs a jwt using SESSION_DAYS', async () => {
+    it('creates a session and returns the session id', async () => {
       configService.get.mockReturnValue(14);
       prisma.session.create.mockResolvedValue({ id: 'session-1' });
-      jwtService.sign.mockReturnValue('signed-token');
 
       const result = await service.login({ id: 'user-1' } as never);
 
       expect(prisma.session.create).toHaveBeenCalledWith({
         data: { userId: 'user-1', expiresAt: expect.any(Date) as Date },
       });
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        { sub: 'user-1', sid: 'session-1' },
-        { expiresIn: '14d' },
-      );
-      expect(result.token).toBe('signed-token');
+      expect(result.sessionId).toBe('session-1');
       expect(result.expiresAt).toBeInstanceOf(Date);
     });
 
-    it('defaults SESSION_DAYS to 7 when unset', async () => {
-      configService.get.mockReturnValue();
+    it('honors SESSION_DAYS when computing the expiry', async () => {
+      configService.get.mockReturnValue(14);
       prisma.session.create.mockResolvedValue({ id: 'session-1' });
-      jwtService.sign.mockReturnValue('token');
 
-      await service.login({ id: 'user-1' } as never);
+      const before = Date.now();
+      const result = await service.login({ id: 'user-1' } as never);
+      const expectedMin = before + 13 * 24 * 60 * 60 * 1000;
 
-      expect(jwtService.sign).toHaveBeenCalledWith(expect.anything(), { expiresIn: '7d' });
+      expect(result.expiresAt.getTime()).toBeGreaterThan(expectedMin);
+    });
+
+    it('defaults SESSION_DAYS to 7 when unset', async () => {
+      configService.get.mockReturnValue(void 0);
+      prisma.session.create.mockResolvedValue({ id: 'session-1' });
+
+      const before = Date.now();
+      const result = await service.login({ id: 'user-1' } as never);
+      const eightDays = before + 8 * 24 * 60 * 60 * 1000;
+
+      expect(result.expiresAt.getTime()).toBeLessThan(eightDays);
     });
   });
 

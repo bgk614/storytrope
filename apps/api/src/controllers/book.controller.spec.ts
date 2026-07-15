@@ -1,8 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import type { AuthenticatedUser } from '../auth/authenticated-user';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { WorkService } from '../services/work.service';
 import { WorkTropeService } from '../services/work-trope.service';
-import type { AuthenticatedUser } from '../strategies/jwt.strategy';
 import { BookController } from './book.controller';
 
 describe('BookController', () => {
@@ -20,7 +21,10 @@ describe('BookController', () => {
         { provide: WorkService, useValue: workService },
         { provide: WorkTropeService, useValue: workTropeService },
       ],
-    }).compile();
+    })
+      .overrideGuard(SessionAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<BookController>(BookController);
   });

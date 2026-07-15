@@ -1,9 +1,10 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { VoteType } from '../../generated/prisma/enums.js';
+import type { AuthenticatedUser } from '../auth/authenticated-user';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { TropeService } from '../services/trope.service';
 import { WorkTropeService } from '../services/work-trope.service';
-import type { AuthenticatedUser } from '../strategies/jwt.strategy';
 import { TropeController } from './trope.controller';
 
 describe('TropeController', () => {
@@ -40,7 +41,10 @@ describe('TropeController', () => {
         { provide: TropeService, useValue: tropeService },
         { provide: WorkTropeService, useValue: workTropeService },
       ],
-    }).compile();
+    })
+      .overrideGuard(SessionAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<TropeController>(TropeController);
   });

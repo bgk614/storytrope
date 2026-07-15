@@ -9,15 +9,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import { CreateTropeDto } from '../dtos/trope.dto';
-import { AddBookToTropeDto } from '../dtos/work-trope.dto';
+import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { SetParentDto } from '../dtos/set-parent.dto';
+import { CreateTropeDto } from '../dtos/trope.dto';
 import { VoteDto } from '../dtos/vote.dto';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { AddBookToTropeDto } from '../dtos/work-trope.dto';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { TropeService } from '../services/trope.service';
 import { WorkTropeService } from '../services/work-trope.service';
-import type { AuthenticatedUser } from '../strategies/jwt.strategy';
+import type { AuthenticatedUser } from '../auth/authenticated-user';
 
 @Controller('tropes')
 export class TropeController {
@@ -26,7 +26,7 @@ export class TropeController {
     private readonly workTropeService: WorkTropeService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   @Post()
   async create(@Body() dto: CreateTropeDto) {
     return this.tropeService.createTrope(dto);
@@ -56,13 +56,13 @@ export class TropeController {
     return this.tropeService.children(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   @Patch(':id/parent')
   async setParent(@Param('id') id: string, @Body() dto: SetParentDto) {
     return this.tropeService.setParent(id, dto.parentId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   @Post(':id/books')
   async addBook(
     @Param('id') id: string,
@@ -72,13 +72,13 @@ export class TropeController {
     return this.workTropeService.linkTropeToWork(dto.workId, id, user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   @Post(':id/like')
   async like(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.tropeService.toggleLike(id, user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   @Post(':id/books/:bookId/vote')
   async vote(
     @Param('id') id: string,

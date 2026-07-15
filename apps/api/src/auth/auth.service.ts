@@ -1,27 +1,21 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Session, User } from '../../generated/prisma/client.js';
-import { PrismaService } from './prisma.service';
-import { UserService } from './user.service';
-
-export interface JwtPayload {
-  sub: string;
-  sid: string;
-}
+import { Prisma, Session, User } from '../../generated/prisma/client.js';
+import { PrismaService } from '../services/prisma.service';
+import { UserService } from '../user/user.service.js';
+import { SignUpDto } from './dto/signup.dto.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private userService: UserService,
-    private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.userService.user({ email });
+    const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -34,7 +28,7 @@ export class AuthService {
     return user;
   }
 
-  async login(user: User): Promise<{ token: string; expiresAt: Date }> {
+  async login(user: User): Promise<{ sessionId: string; expiresAt: Date }> {
     const sessionDays = this.configService.get<number>('SESSION_DAYS') ?? 7;
     const expiresAt = new Date(Date.now() + sessionDays * 24 * 60 * 60 * 1000);
 
@@ -42,12 +36,30 @@ export class AuthService {
       data: { userId: user.id, expiresAt },
     });
 
-    const payload: JwtPayload = { sub: user.id, sid: session.id };
-    const token = this.jwtService.sign(payload, {
-      expiresIn: `${sessionDays}d`,
-    });
+    return { sessionId: session.id, expiresAt };
+  }
 
-    return { token, expiresAt };
+  async signUp(dto: SignUpDto): Promise<Omit<User, 'passwordHash'>> {
+    const saltOrRounds = 10;
+    const passwordHash = await bcrypt.hash(dto.password, saltOrRounds);
+
+    try {
+      return await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          nickname: dto.nickname,
+          passwordHash: passwordHash,
+        },
+        omit: { passwordHash: true },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const target = (error.meta?.target as string[] | undefined) ?? [];
+        const field = target.includes('nickname') ? 'nickname' : 'email';
+        throw new ConflictException(`A user with this ${field} already exists`);
+      }
+      throw error;
+    }
   }
 
   async logout(sessionId: string): Promise<void> {

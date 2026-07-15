@@ -8,13 +8,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { ListBooksQueryDto } from '../dtos/book.dto';
 import { AddTropeToBookDto } from '../dtos/work-trope.dto';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { WorkService } from '../services/work.service';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { WorkTropeService } from '../services/work-trope.service';
-import type { AuthenticatedUser } from '../strategies/jwt.strategy';
+import { WorkService } from '../services/work.service';
+import type { AuthenticatedUser } from '../auth/authenticated-user';
 
 @Controller('books')
 export class BookController {
@@ -45,7 +45,7 @@ export class BookController {
     return this.workTropeService.tropesOfWork(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   @Post(':id/tropes')
   async addTrope(
     @Param('id') id: string,
