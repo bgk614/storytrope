@@ -4,20 +4,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { TerminusModule } from '@nestjs/terminus';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import * as Joi from 'joi';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
+import { AuthModule } from './auth/auth.module';
 import { HealthController } from './health.controller';
-import { RankingController } from './ranking/ranking.controller';
-import { RankingService } from './ranking/ranking.service';
 import { PrismaService } from './prisma/prisma.service';
-import { TropesController } from './tropes/tropes.controller';
-import { TropesService } from './tropes/tropes.service';
-import { UserController } from './users/users.controller';
-import { UserService } from './users/users.service';
-import { WorkTropesController } from './work-tropes/work-tropes.controller';
-import { WorkTropesService } from './work-tropes/work-tropes.service';
-import { WorksController } from './works/works.controller';
-import { WorksService } from './works/works.service';
+import { RankingModule } from './ranking/ranking.module';
+import { TropesModule } from './tropes/tropes.module';
+import { UsersModule } from './users/users.module';
+import { WorkTropesModule } from './work-tropes/work-tropes.module';
+import { WorksModule } from './works/works.module';
 
 @Module({
   imports: [
@@ -35,25 +29,14 @@ import { WorksService } from './works/works.service';
     }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     TerminusModule.forRoot(),
+    AuthModule,
+    RankingModule,
+    TropesModule,
+    UsersModule,
+    WorkTropesModule,
+    WorksModule,
   ],
-  controllers: [
-    AuthController,
-    WorksController,
-    WorkTropesController,
-    TropesController,
-    RankingController,
-    HealthController,
-    UserController,
-  ],
-  providers: [
-    PrismaService,
-    UserService,
-    AuthService,
-    WorksService,
-    TropesService,
-    WorkTropesService,
-    RankingService,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  controllers: [HealthController],
+  providers: [PrismaService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
