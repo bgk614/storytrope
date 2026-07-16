@@ -4,11 +4,11 @@ import { VoteType } from '../../generated/prisma/enums.js';
 import type { AuthenticatedUser } from '../auth/authenticated-user.js';
 import { SessionAuthGuard } from '../auth/session-auth.guard.js';
 import { WorkTropesService } from '../work-tropes/work-tropes.service.js';
-import { TropeService } from './tropes.service.js';
-import { TropeController } from './tropes.controller';
+import { TropesController } from './tropes.controller';
+import { TropesService } from './tropes.service.js';
 
 describe('TropeController', () => {
-  let controller: TropeController;
+  let controller: TropesController;
   let tropeService: {
     createTrope: jest.Mock;
     tropes: jest.Mock;
@@ -36,9 +36,9 @@ describe('TropeController', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [TropeController],
+      controllers: [TropesController],
       providers: [
-        { provide: TropeService, useValue: tropeService },
+        { provide: TropesService, useValue: tropeService },
         { provide: WorkTropesService, useValue: workTropeService },
       ],
     })
@@ -46,7 +46,7 @@ describe('TropeController', () => {
       .useValue({ canActivate: () => true })
       .compile();
 
-    controller = module.get<TropeController>(TropeController);
+    controller = module.get<TropesController>(TropesController);
   });
 
   afterEach(() => {

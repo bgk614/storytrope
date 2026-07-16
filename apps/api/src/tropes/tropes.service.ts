@@ -9,7 +9,7 @@ import { PrismaService } from '../services/prisma.service.js';
 import { CreateTropeDto } from './dtos/create-trope.dto.js';
 
 @Injectable()
-export class TropeService {
+export class TropesService {
   constructor(private prisma: PrismaService) {}
 
   async tropes(parameters: { topLevelOnly?: boolean }) {

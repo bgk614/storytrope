@@ -17,12 +17,12 @@ import { AddWorkToTropeDto } from '../work-tropes/work-tropes.dto';
 import { WorkTropesService } from '../work-tropes/work-tropes.service';
 import { CreateTropeDto } from './dtos/create-trope.dto';
 import { SetParentDto } from './dtos/set-parent.dto';
-import { TropeService } from './tropes.service';
+import { TropesService } from './tropes.service';
 
 @Controller('tropes')
-export class TropeController {
+export class TropesController {
   constructor(
-    private readonly tropeService: TropeService,
+    private readonly tropeService: TropesService,
     private readonly workTropeService: WorkTropesService,
   ) {}
 

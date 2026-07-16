@@ -12,10 +12,10 @@ import { HealthController } from './health.controller';
 import { AppService } from './services/app.service';
 import { PrismaService } from './services/prisma.service';
 import { RankingService } from './services/ranking.service';
-import { TropeController } from './tropes/tropes.controller';
-import { TropeService } from './tropes/tropes.service';
-import { UserController } from './user/user.controller';
-import { UserService } from './user/user.service';
+import { TropesController } from './tropes/tropes.controller';
+import { TropesService } from './tropes/tropes.service';
+import { UserController } from './users/users.controller';
+import { UserService } from './users/users.service';
 import { WorkTropesController } from './work-tropes/work-tropes.controller';
 import { WorkTropesService } from './work-tropes/work-tropes.service';
 import { WorksController } from './works/works.controller';
@@ -43,7 +43,7 @@ import { WorksService } from './works/works.service';
     AuthController,
     WorksController,
     WorkTropesController,
-    TropeController,
+    TropesController,
     RankingController,
     HealthController,
     UserController,
@@ -54,7 +54,7 @@ import { WorksService } from './works/works.service';
     UserService,
     AuthService,
     WorksService,
-    TropeService,
+    TropesService,
     WorkTropesService,
     RankingService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },

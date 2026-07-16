@@ -1,11 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { AuthService } from '../auth/auth.service';
+import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { PublicUserDto } from './dto/public-user.dto';
 import { UserDto } from './dto/user.dto';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
+import { UserController } from './users.controller';
+import { UserService } from './users.service';
 
 describe('UserController', () => {
   let controller: UserController;

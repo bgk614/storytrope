@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../services/prisma.service';
-import { UserService } from '../user/user.service';
+import { UserService } from '../users/users.service';
 import { AuthService } from './auth.service';
 
 jest.mock('bcrypt');

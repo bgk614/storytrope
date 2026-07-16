@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, NotFoundException } from '@nest
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from '../services/prisma.service.js';
-import { TropeService } from './tropes.service';
+import { TropesService } from './tropes.service';
 
 function prismaKnownError(code: string) {
   return new Prisma.PrismaClientKnownRequestError('mock error', {
@@ -12,7 +12,7 @@ function prismaKnownError(code: string) {
 }
 
 describe('TropeService', () => {
-  let service: TropeService;
+  let service: TropesService;
   let prisma: {
     trope: {
       findMany: jest.Mock;
@@ -41,10 +41,10 @@ describe('TropeService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TropeService, { provide: PrismaService, useValue: prisma }],
+      providers: [TropesService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
-    service = module.get<TropeService>(TropeService);
+    service = module.get<TropesService>(TropesService);
   });
 
   afterEach(() => {

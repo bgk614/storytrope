@@ -6,7 +6,7 @@ import { CurrentUser } from './decorator/current-user.decorator';
 import { SignInDto } from './dto/signin.dto';
 import { SignUpDto } from './dto/signup.dto';
 
-import { UserDto } from '../user/dto/user.dto';
+import { UserDto } from '../users/dto/user.dto';
 import { SESSION_COOKIE, SessionAuthGuard } from './session-auth.guard';
 
 @Controller('auth')

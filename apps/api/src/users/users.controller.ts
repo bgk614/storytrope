@@ -4,7 +4,7 @@ import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { PublicUserDto } from './dto/public-user.dto';
 import { UserDto } from './dto/user.dto';
-import { UserService } from './user.service';
+import { UserService } from './users.service';
 
 @Controller('users')
 export class UserController {
