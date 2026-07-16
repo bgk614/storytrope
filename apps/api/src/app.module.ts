@@ -6,7 +6,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import * as Joi from 'joi';
 import { AuthModule } from './auth/auth.module';
 import { HealthController } from './health.controller';
-import { PrismaService } from './prisma/prisma.service';
+import { PrismaModule } from './prisma/prisma.module';
 import { RankingModule } from './ranking/ranking.module';
 import { TropesModule } from './tropes/tropes.module';
 import { UsersModule } from './users/users.module';
@@ -29,6 +29,7 @@ import { WorksModule } from './works/works.module';
     }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     TerminusModule.forRoot(),
+    PrismaModule,
     AuthModule,
     RankingModule,
     TropesModule,
@@ -37,6 +38,6 @@ import { WorksModule } from './works/works.module';
     WorksModule,
   ],
   controllers: [HealthController],
-  providers: [PrismaService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

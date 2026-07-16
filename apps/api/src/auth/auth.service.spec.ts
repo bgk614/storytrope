@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 
 jest.mock('bcrypt');
@@ -12,8 +11,8 @@ describe('AuthService', () => {
   let service: AuthService;
   let prisma: {
     session: { create: jest.Mock; deleteMany: jest.Mock; findUnique: jest.Mock };
+    user: { findUnique: jest.Mock };
   };
-  let userService: { findByEmail: jest.Mock };
   let configService: { get: jest.Mock };
 
   beforeEach(async () => {
@@ -23,15 +22,16 @@ describe('AuthService', () => {
         deleteMany: jest.fn(),
         findUnique: jest.fn(),
       },
+      user: {
+        findUnique: jest.fn(),
+      },
     };
-    userService = { findByEmail: jest.fn() };
     configService = { get: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: PrismaService, useValue: prisma },
-        { provide: UsersService, useValue: userService },
         { provide: ConfigService, useValue: configService },
       ],
     }).compile();
@@ -45,13 +45,13 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('throws when no user matches the email', async () => {
-      userService.findByEmail.mockResolvedValue(null);
+      prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(service.validateUser('a@b.com', 'pw')).rejects.toThrow(UnauthorizedException);
     });
 
     it('throws when the password does not match', async () => {
-      userService.findByEmail.mockResolvedValue({ passwordHash: 'hash' });
+      prisma.user.findUnique.mockResolvedValue({ passwordHash: 'hash' });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(service.validateUser('a@b.com', 'wrong')).rejects.toThrow(UnauthorizedException);
@@ -59,12 +59,13 @@ describe('AuthService', () => {
 
     it('returns the user when the password matches', async () => {
       const user = { id: 'user-1', passwordHash: 'hash' };
-      userService.findByEmail.mockResolvedValue(user);
+      prisma.user.findUnique.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validateUser('a@b.com', 'correct');
 
       expect(result).toBe(user);
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: 'a@b.com' } });
       expect(bcrypt.compare).toHaveBeenCalledWith('correct', 'hash');
     });
   });

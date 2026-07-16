@@ -3,19 +3,17 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { Prisma, Session, User } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
-import { UsersService } from '../users/users.service.js';
 import { SignUpDto } from './dto/signup.dto.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private userService: UsersService,
     private configService: ConfigService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
-    const user = await this.userService.findByEmail(email);
+    const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }

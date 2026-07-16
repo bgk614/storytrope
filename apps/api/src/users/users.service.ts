@@ -12,12 +12,6 @@ export class UsersService {
     });
   }
 
-  // Auth 전용: passwordHash 비교가 필요하므로 해시를 포함한 전체 User를 반환한다.
-  async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { email },
-    });
-  }
   async list(parameters: {
     skip?: number;
     take?: number;
