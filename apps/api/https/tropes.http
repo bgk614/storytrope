@@ -1,2 +1,59 @@
+# REST Client
+# .vscode/settings.json 파일 내에 baseUrl 설정 -> cmd + alt + e 환경 선택
+# 로그인이 필요한 요청은 먼저 auth.http 의 로그인을 실행해 세션 쿠키 받기
+
 ### 트로프 리스트 조회
 GET {{baseUrl}}/tropes
+
+### 트로프 리스트 조회 - 페이지네이션 (skip/take)
+GET {{baseUrl}}/tropes?skip=0&take=20
+
+### 트로프 리스트 조회 - 다음 페이지
+GET {{baseUrl}}/tropes?skip=20&take=20
+
+### 트로프 리스트 조회 - 최상위(부모 트로프 없음)
+GET {{baseUrl}}/tropes?topLevelOnly=true&skip=0&take=20
+
+### 트로프 단일 조회
+GET {{baseUrl}}/tropes/{{tropeId}}
+
+### 트로프의 하위 트로프 목록 - 페이지네이션
+GET {{baseUrl}}/tropes/{{tropeId}}/children?skip=0&take=20
+
+### 트로프가 등장하는 작품 목록 - 페이지네이션
+GET {{baseUrl}}/tropes/{{tropeId}}/works?skip=0&take=20
+
+### 트로프 생성 (로그인 필요)
+POST {{baseUrl}}/tropes
+Content-Type: application/json
+
+{
+  "name": "Test Trope"
+}
+
+### 트로프 부모 지정 (로그인 필요)
+PATCH {{baseUrl}}/tropes/{{tropeId}}/parent
+Content-Type: application/json
+
+{
+  "parentId": "{{parentTropeId}}"
+}
+
+### 트로프에 작품 연결 (로그인 필요)
+POST {{baseUrl}}/tropes/{{tropeId}}/works
+Content-Type: application/json
+
+{
+  "workId": "{{workId}}"
+}
+
+### 트로프 좋아요 토글 (로그인 필요)
+POST {{baseUrl}}/tropes/{{tropeId}}/like
+
+### 작품-트로프 투표 (로그인 필요)
+POST {{baseUrl}}/tropes/{{tropeId}}/works/{{workId}}/vote
+Content-Type: application/json
+
+{
+  "voteType": "UP"
+}

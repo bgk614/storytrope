@@ -1,0 +1,26 @@
+# REST Client
+# .vscode/settings.json 파일 내에 baseUrl 설정 -> cmd + alt + e 환경 선택
+# 로그인이 필요한 요청은 먼저 auth.http 의 로그인을 실행해 세션 쿠키를 받아둔다.
+
+### 작품 리스트 조회
+GET {{baseUrl}}/works
+
+### 작품 리스트 조회 - 페이지네이션 (skip/take)
+GET {{baseUrl}}/works?skip=0&take=20
+
+### 작품 리스트 조회 - 다음 페이지
+GET {{baseUrl}}/works?skip=20&take=20
+
+### 작품 단건 조회
+GET {{baseUrl}}/works/{{workId}}
+
+### 작품에 붙은 트로프 목록 - 페이지네이션
+GET {{baseUrl}}/works/{{workId}}/tropes?skip=0&take=20
+
+### 작품에 트로프 연결 (로그인 필요)
+POST {{baseUrl}}/works/{{workId}}/tropes
+Content-Type: application/json
+
+{
+  "tropeId": "{{tropeId}}"
+}
