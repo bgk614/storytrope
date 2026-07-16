@@ -17,10 +17,11 @@ describe('TropeService', () => {
     trope: {
       findMany: jest.Mock;
       findUnique: jest.Mock;
+      findUniqueOrThrow: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
     };
-    tropeLike: { findUnique: jest.Mock; delete: jest.Mock; create: jest.Mock };
+    tropeLike: { deleteMany: jest.Mock; create: jest.Mock };
     $transaction: jest.Mock;
   };
 
@@ -29,16 +30,21 @@ describe('TropeService', () => {
       trope: {
         findMany: jest.fn(),
         findUnique: jest.fn(),
+        findUniqueOrThrow: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
       },
       tropeLike: {
-        findUnique: jest.fn(),
-        delete: jest.fn(),
+        deleteMany: jest.fn(),
         create: jest.fn(),
       },
       $transaction: jest.fn(),
     };
+    prisma.$transaction.mockImplementation((argument: unknown) =>
+      typeof argument === 'function'
+        ? (argument as (tx: typeof prisma) => unknown)(prisma)
+        : Promise.all(argument as Promise<unknown>[]),
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [TropesService, { provide: PrismaService, useValue: prisma }],
@@ -139,14 +145,14 @@ describe('TropeService', () => {
 
     it('removes an existing like and decrements the score', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
-      prisma.tropeLike.findUnique.mockResolvedValue({ tropeId: 'trope-1', userId: 'user-1' });
-      prisma.$transaction.mockResolvedValue([undefined, { likeScore: 3 }]);
+      prisma.tropeLike.deleteMany.mockResolvedValue({ count: 1 });
+      prisma.trope.update.mockResolvedValue({ likeScore: 3 });
 
       const result = await service.toggleLike('trope-1', 'user-1');
 
       expect(result).toEqual({ liked: false, likeScore: 3 });
-      expect(prisma.tropeLike.delete).toHaveBeenCalledWith({
-        where: { tropeId_userId: { tropeId: 'trope-1', userId: 'user-1' } },
+      expect(prisma.tropeLike.deleteMany).toHaveBeenCalledWith({
+        where: { tropeId: 'trope-1', userId: 'user-1' },
       });
       expect(prisma.trope.update).toHaveBeenCalledWith({
         where: { id: 'trope-1' },
@@ -156,8 +162,9 @@ describe('TropeService', () => {
 
     it('creates a like and increments the score when none exists', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
-      prisma.tropeLike.findUnique.mockResolvedValue(null);
-      prisma.$transaction.mockResolvedValue([undefined, { likeScore: 4 }]);
+      prisma.tropeLike.deleteMany.mockResolvedValue({ count: 0 });
+      prisma.tropeLike.create.mockResolvedValue({});
+      prisma.trope.update.mockResolvedValue({ likeScore: 4 });
 
       const result = await service.toggleLike('trope-1', 'user-1');
 
@@ -165,6 +172,18 @@ describe('TropeService', () => {
       expect(prisma.tropeLike.create).toHaveBeenCalledWith({
         data: { tropeId: 'trope-1', userId: 'user-1' },
       });
+    });
+
+    it('treats a concurrent duplicate like as already liked', async () => {
+      prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
+      prisma.tropeLike.deleteMany.mockResolvedValue({ count: 0 });
+      prisma.tropeLike.create.mockRejectedValue(prismaKnownError('P2002'));
+      prisma.trope.findUniqueOrThrow.mockResolvedValue({ likeScore: 5 });
+
+      const result = await service.toggleLike('trope-1', 'user-1');
+
+      expect(result).toEqual({ liked: true, likeScore: 5 });
+      expect(prisma.trope.update).not.toHaveBeenCalled();
     });
   });
 

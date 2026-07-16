@@ -59,31 +59,34 @@ export class TropesService {
       throw new NotFoundException(`Trope ${tropeId} not found`);
     }
 
-    const existingLike = await this.prisma.tropeLike.findUnique({
-      where: { tropeId_userId: { tropeId, userId } },
-    });
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const deleted = await tx.tropeLike.deleteMany({ where: { tropeId, userId } });
+        if (deleted.count > 0) {
+          const updated = await tx.trope.update({
+            where: { id: tropeId },
+            data: { likeScore: { decrement: deleted.count } },
+          });
+          return { liked: false, likeScore: updated.likeScore };
+        }
 
-    if (existingLike) {
-      const [, updated] = await this.prisma.$transaction([
-        this.prisma.tropeLike.delete({
-          where: { tropeId_userId: { tropeId, userId } },
-        }),
-        this.prisma.trope.update({
+        await tx.tropeLike.create({ data: { tropeId, userId } });
+        const updated = await tx.trope.update({
           where: { id: tropeId },
-          data: { likeScore: { decrement: 1 } },
-        }),
-      ]);
-      return { liked: false, likeScore: updated.likeScore };
+          data: { likeScore: { increment: 1 } },
+        });
+        return { liked: true, likeScore: updated.likeScore };
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const current = await this.prisma.trope.findUniqueOrThrow({
+          where: { id: tropeId },
+          select: { likeScore: true },
+        });
+        return { liked: true, likeScore: current.likeScore };
+      }
+      throw error;
     }
-
-    const [, updated] = await this.prisma.$transaction([
-      this.prisma.tropeLike.create({ data: { tropeId, userId } }),
-      this.prisma.trope.update({
-        where: { id: tropeId },
-        data: { likeScore: { increment: 1 } },
-      }),
-    ]);
-    return { liked: true, likeScore: updated.likeScore };
   }
 
   async children(tropeId: string) {

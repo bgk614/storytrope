@@ -81,6 +81,22 @@ export class WorkTropesService {
       throw new NotFoundException(`Trope ${tropeId} is not linked to work ${workId}`);
     }
 
+    try {
+      return await this.applyVote(workId, tropeId, userId, voteType);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        return this.applyVote(workId, tropeId, userId, voteType);
+      }
+      throw error;
+    }
+  }
+
+  private async applyVote(
+    workId: string,
+    tropeId: string,
+    userId: string,
+    voteType: VoteType,
+  ): Promise<{ voteScore: number }> {
     const existingVote = await this.prisma.workTropeVote.findUnique({
       where: { userId_workId_tropeId: { userId, workId, tropeId } },
     });
@@ -100,20 +116,32 @@ export class WorkTropesService {
     }
 
     if (existingVote.voteType === voteType) {
-      return { voteScore: workTrope.voteScore };
+      return this.currentScore(workId, tropeId);
     }
 
     const delta = voteContribution(voteType) - voteContribution(existingVote.voteType);
-    const [, updated] = await this.prisma.$transaction([
-      this.prisma.workTropeVote.update({
-        where: { userId_workId_tropeId: { userId, workId, tropeId } },
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const changed = await tx.workTropeVote.updateMany({
+        where: { userId, workId, tropeId, voteType: existingVote.voteType },
         data: { voteType },
-      }),
-      this.prisma.workTrope.update({
+      });
+      if (changed.count === 0) {
+        return null;
+      }
+      return tx.workTrope.update({
         where: { workId_tropeId: { workId, tropeId } },
         data: { voteScore: { increment: delta } },
-      }),
-    ]);
-    return { voteScore: updated.voteScore };
+      });
+    });
+
+    return updated ? { voteScore: updated.voteScore } : this.currentScore(workId, tropeId);
+  }
+
+  private async currentScore(workId: string, tropeId: string): Promise<{ voteScore: number }> {
+    const workTrope = await this.prisma.workTrope.findUniqueOrThrow({
+      where: { workId_tropeId: { workId, tropeId } },
+      select: { voteScore: true },
+    });
+    return { voteScore: workTrope.voteScore };
   }
 }

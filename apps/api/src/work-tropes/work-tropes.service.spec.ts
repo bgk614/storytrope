@@ -16,8 +16,14 @@ describe('WorkTropesService', () => {
   let prisma: {
     work: { findUnique: jest.Mock };
     trope: { findUnique: jest.Mock };
-    workTrope: { findMany: jest.Mock; findUnique: jest.Mock; create: jest.Mock; update: jest.Mock };
-    workTropeVote: { findUnique: jest.Mock; create: jest.Mock; update: jest.Mock };
+    workTrope: {
+      findMany: jest.Mock;
+      findUnique: jest.Mock;
+      findUniqueOrThrow: jest.Mock;
+      create: jest.Mock;
+      update: jest.Mock;
+    };
+    workTropeVote: { findUnique: jest.Mock; create: jest.Mock; updateMany: jest.Mock };
     $transaction: jest.Mock;
   };
 
@@ -28,16 +34,22 @@ describe('WorkTropesService', () => {
       workTrope: {
         findMany: jest.fn(),
         findUnique: jest.fn(),
+        findUniqueOrThrow: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
       },
       workTropeVote: {
         findUnique: jest.fn(),
         create: jest.fn(),
-        update: jest.fn(),
+        updateMany: jest.fn(),
       },
       $transaction: jest.fn(),
     };
+    prisma.$transaction.mockImplementation((argument: unknown) =>
+      typeof argument === 'function'
+        ? (argument as (tx: typeof prisma) => unknown)(prisma)
+        : Promise.all(argument as Promise<unknown>[]),
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [WorkTropesService, { provide: PrismaService, useValue: prisma }],
@@ -156,7 +168,8 @@ describe('WorkTropesService', () => {
     it('creates a new UP vote and increments the score', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 0 });
       prisma.workTropeVote.findUnique.mockResolvedValue(null);
-      prisma.$transaction.mockResolvedValue([undefined, { voteScore: 1 }]);
+      prisma.workTropeVote.create.mockResolvedValue({});
+      prisma.workTrope.update.mockResolvedValue({ voteScore: 1 });
 
       const result = await service.vote('work-1', 'trope-1', 'user-1', VoteType.UP);
 
@@ -173,7 +186,8 @@ describe('WorkTropesService', () => {
     it('creates a new DOWN vote and decrements the score', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 0 });
       prisma.workTropeVote.findUnique.mockResolvedValue(null);
-      prisma.$transaction.mockResolvedValue([undefined, { voteScore: -1 }]);
+      prisma.workTropeVote.create.mockResolvedValue({});
+      prisma.workTrope.update.mockResolvedValue({ voteScore: -1 });
 
       const result = await service.vote('work-1', 'trope-1', 'user-1', VoteType.DOWN);
 
@@ -184,9 +198,10 @@ describe('WorkTropesService', () => {
       });
     });
 
-    it('is a no-op when re-casting the same vote type', async () => {
+    it('returns the current score without writes when re-casting the same vote type', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 5 });
       prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
+      prisma.workTrope.findUniqueOrThrow.mockResolvedValue({ voteScore: 5 });
 
       const result = await service.vote('work-1', 'trope-1', 'user-1', VoteType.UP);
 
@@ -197,21 +212,50 @@ describe('WorkTropesService', () => {
     it('flips an existing vote and applies double the delta', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
       prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
-      prisma.$transaction.mockResolvedValue([undefined, { voteScore: -1 }]);
+      prisma.workTropeVote.updateMany.mockResolvedValue({ count: 1 });
+      prisma.workTrope.update.mockResolvedValue({ voteScore: -1 });
 
       const result = await service.vote('work-1', 'trope-1', 'user-1', VoteType.DOWN);
 
       expect(result).toEqual({ voteScore: -1 });
-      expect(prisma.workTropeVote.update).toHaveBeenCalledWith({
-        where: {
-          userId_workId_tropeId: { userId: 'user-1', workId: 'work-1', tropeId: 'trope-1' },
-        },
+      expect(prisma.workTropeVote.updateMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1', workId: 'work-1', tropeId: 'trope-1', voteType: VoteType.UP },
         data: { voteType: VoteType.DOWN },
       });
       expect(prisma.workTrope.update).toHaveBeenCalledWith({
         where: { workId_tropeId: { workId: 'work-1', tropeId: 'trope-1' } },
         data: { voteScore: { increment: -2 } },
       });
+    });
+
+    it('retries as a vote change when a concurrent first vote wins the race', async () => {
+      prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
+      prisma.workTropeVote.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ voteType: VoteType.UP });
+      prisma.workTropeVote.create.mockRejectedValue(prismaKnownError('P2002'));
+      prisma.workTropeVote.updateMany.mockResolvedValue({ count: 1 });
+      prisma.workTrope.update.mockResolvedValue({ voteScore: -1 });
+
+      const result = await service.vote('work-1', 'trope-1', 'user-1', VoteType.DOWN);
+
+      expect(result).toEqual({ voteScore: -1 });
+      expect(prisma.workTropeVote.updateMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1', workId: 'work-1', tropeId: 'trope-1', voteType: VoteType.UP },
+        data: { voteType: VoteType.DOWN },
+      });
+    });
+
+    it('does not double-apply the delta when a concurrent flip already happened', async () => {
+      prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
+      prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
+      prisma.workTropeVote.updateMany.mockResolvedValue({ count: 0 });
+      prisma.workTrope.findUniqueOrThrow.mockResolvedValue({ voteScore: -1 });
+
+      const result = await service.vote('work-1', 'trope-1', 'user-1', VoteType.DOWN);
+
+      expect(result).toEqual({ voteScore: -1 });
+      expect(prisma.workTrope.update).not.toHaveBeenCalled();
     });
   });
 });
