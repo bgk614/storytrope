@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '../../generated/prisma/client.js';
-import { PrismaService } from '../services/prisma.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 import { TropesService } from './tropes.service';
 
 function prismaKnownError(code: string) {
