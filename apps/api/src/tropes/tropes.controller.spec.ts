@@ -7,7 +7,7 @@ import { WorkTropesService } from '../work-tropes/work-tropes.service.js';
 import { TropesController } from './tropes.controller';
 import { TropesService } from './tropes.service.js';
 
-describe('TropeController', () => {
+describe('TropesController', () => {
   let controller: TropesController;
   let tropeService: {
     createTrope: jest.Mock;
@@ -66,25 +66,45 @@ describe('TropeController', () => {
   });
 
   describe('findAll', () => {
-    it('treats "true" query string as topLevelOnly true', async () => {
+    it('passes topLevelOnly through with pagination defaults', async () => {
       tropeService.tropes.mockResolvedValue([]);
 
-      await controller.findAll('true');
+      await controller.findAll({ topLevelOnly: true });
 
-      expect(tropeService.tropes).toHaveBeenCalledWith({ topLevelOnly: true });
+      expect(tropeService.tropes).toHaveBeenCalledWith({
+        topLevelOnly: true,
+        skip: undefined,
+        take: 100,
+      });
     });
 
-    it('treats anything else (including undefined) as false', async () => {
+    it('defaults topLevelOnly to false and caps take at 100', async () => {
       tropeService.tropes.mockResolvedValue([]);
 
-      await controller.findAll();
+      await controller.findAll({});
 
-      expect(tropeService.tropes).toHaveBeenCalledWith({ topLevelOnly: false });
+      expect(tropeService.tropes).toHaveBeenCalledWith({
+        topLevelOnly: false,
+        skip: undefined,
+        take: 100,
+      });
+    });
+
+    it('forwards explicit skip/take', async () => {
+      tropeService.tropes.mockResolvedValue([]);
+
+      await controller.findAll({ skip: 10, take: 5 });
+
+      expect(tropeService.tropes).toHaveBeenCalledWith({
+        topLevelOnly: false,
+        skip: 10,
+        take: 5,
+      });
     });
   });
 
   describe('findOne', () => {
-    it('throws NotFoundException when the trope does not exist', async () => {
+    it('해당 트로프가 존재하지 않을 떄 throws NotFoundException', async () => {
       tropeService.trope.mockResolvedValue(null);
 
       await expect(controller.findOne('missing')).rejects.toThrow(NotFoundException);
@@ -105,10 +125,13 @@ describe('TropeController', () => {
       const works = [{ id: 'work-1' }];
       workTropeService.worksOfTrope.mockResolvedValue(works);
 
-      const result = await controller.findWorks('trope-1');
+      const result = await controller.findWorks('trope-1', {});
 
       expect(result).toBe(works);
-      expect(workTropeService.worksOfTrope).toHaveBeenCalledWith('trope-1');
+      expect(workTropeService.worksOfTrope).toHaveBeenCalledWith('trope-1', {
+        skip: undefined,
+        take: 20,
+      });
     });
   });
 
@@ -117,10 +140,13 @@ describe('TropeController', () => {
       const children = [{ id: 'child-1' }];
       tropeService.children.mockResolvedValue(children);
 
-      const result = await controller.findChildren('trope-1');
+      const result = await controller.findChildren('trope-1', {});
 
       expect(result).toBe(children);
-      expect(tropeService.children).toHaveBeenCalledWith('trope-1');
+      expect(tropeService.children).toHaveBeenCalledWith('trope-1', {
+        skip: undefined,
+        take: 100,
+      });
     });
   });
 

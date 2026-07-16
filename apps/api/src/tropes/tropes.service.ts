@@ -12,12 +12,14 @@ import { CreateTropeDto } from './dtos/create-trope.dto.js';
 export class TropesService {
   constructor(private prisma: PrismaService) {}
 
-  async tropes(parameters: { topLevelOnly?: boolean }) {
-    const { topLevelOnly } = parameters;
+  async tropes(parameters: { topLevelOnly?: boolean; skip?: number; take?: number }) {
+    const { topLevelOnly, skip, take } = parameters;
     return this.prisma.trope.findMany({
       where: topLevelOnly ? { parentId: null } : undefined,
       orderBy: { name: 'asc' },
       omit: { description: true },
+      skip,
+      take,
     });
   }
 
@@ -89,7 +91,7 @@ export class TropesService {
     }
   }
 
-  async children(tropeId: string) {
+  async children(tropeId: string, pagination: { skip?: number; take?: number } = {}) {
     const trope = await this.prisma.trope.findUnique({
       where: { id: tropeId },
     });
@@ -101,6 +103,8 @@ export class TropesService {
       where: { parentId: tropeId },
       orderBy: { name: 'asc' },
       omit: { description: true },
+      skip: pagination.skip,
+      take: pagination.take,
     });
   }
 

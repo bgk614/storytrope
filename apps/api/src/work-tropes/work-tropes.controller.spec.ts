@@ -31,10 +31,13 @@ describe('WorkTropesController', () => {
       const tropes = [{ id: 'trope-1' }];
       workTropesService.tropesOfWork.mockResolvedValue(tropes);
 
-      const result = await controller.findTropes('work-1');
+      const result = await controller.findTropes('work-1', {});
 
       expect(result).toBe(tropes);
-      expect(workTropesService.tropesOfWork).toHaveBeenCalledWith('work-1');
+      expect(workTropesService.tropesOfWork).toHaveBeenCalledWith('work-1', {
+        skip: undefined,
+        take: 100,
+      });
     });
   });
 

@@ -10,7 +10,7 @@ function voteContribution(voteType: VoteType): number {
 export class WorkTropesService {
   constructor(private prisma: PrismaService) {}
 
-  async tropesOfWork(workId: string) {
+  async tropesOfWork(workId: string, pagination: { skip?: number; take?: number } = {}) {
     const work = await this.prisma.work.findUnique({ where: { id: workId } });
     if (!work) {
       throw new NotFoundException(`Work ${workId} not found`);
@@ -19,11 +19,14 @@ export class WorkTropesService {
     const workTropes = await this.prisma.workTrope.findMany({
       where: { workId },
       include: { trope: { omit: { description: true } } },
+      orderBy: { createdAt: 'desc' },
+      skip: pagination.skip,
+      take: pagination.take,
     });
     return workTropes.map((wt) => wt.trope);
   }
 
-  async worksOfTrope(tropeId: string) {
+  async worksOfTrope(tropeId: string, pagination: { skip?: number; take?: number } = {}) {
     const trope = await this.prisma.trope.findUnique({
       where: { id: tropeId },
     });
@@ -34,6 +37,9 @@ export class WorkTropesService {
     const workTropes = await this.prisma.workTrope.findMany({
       where: { tropeId },
       include: { work: true },
+      orderBy: { createdAt: 'desc' },
+      skip: pagination.skip,
+      take: pagination.take,
     });
     return workTropes.map((wt) => wt.work);
   }

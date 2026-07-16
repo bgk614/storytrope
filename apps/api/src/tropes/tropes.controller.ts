@@ -12,10 +12,12 @@ import {
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { PaginationQueryDto } from '../common/pagination-query.dto';
 import { VoteDto } from './dtos/vote.dto';
 import { AddWorkToTropeDto } from '../work-tropes/work-tropes.dto';
 import { WorkTropesService } from '../work-tropes/work-tropes.service';
 import { CreateTropeDto } from './dtos/create-trope.dto';
+import { ListTropesQueryDto } from './dtos/list-tropes.dto';
 import { SetParentDto } from './dtos/set-parent.dto';
 import { TropesService } from './tropes.service';
 
@@ -33,8 +35,12 @@ export class TropesController {
   }
 
   @Get()
-  async findAll(@Query('topLevelOnly') topLevelOnly?: string) {
-    return this.tropeService.tropes({ topLevelOnly: topLevelOnly === 'true' });
+  async findAll(@Query() query: ListTropesQueryDto) {
+    return this.tropeService.tropes({
+      topLevelOnly: query.topLevelOnly ?? false,
+      skip: query.skip,
+      take: query.take ?? 100,
+    });
   }
 
   @Get(':id')
@@ -47,13 +53,13 @@ export class TropesController {
   }
 
   @Get(':id/works')
-  async findWorks(@Param('id') id: string) {
-    return this.workTropeService.worksOfTrope(id);
+  async findWorks(@Param('id') id: string, @Query() query: PaginationQueryDto) {
+    return this.workTropeService.worksOfTrope(id, { skip: query.skip, take: query.take ?? 20 });
   }
 
   @Get(':id/children')
-  async findChildren(@Param('id') id: string) {
-    return this.tropeService.children(id);
+  async findChildren(@Param('id') id: string, @Query() query: PaginationQueryDto) {
+    return this.tropeService.children(id, { skip: query.skip, take: query.take ?? 100 });
   }
 
   @UseGuards(SessionAuthGuard)
