@@ -12,12 +12,12 @@ import {
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
-import { SetParentDto } from '../dtos/set-parent.dto';
-import { CreateTropeDto } from '../dtos/trope.dto';
 import { VoteDto } from '../dtos/vote.dto';
-import { TropeService } from '../services/trope.service';
 import { AddWorkToTropeDto } from '../work-tropes/work-tropes.dto';
 import { WorkTropesService } from '../work-tropes/work-tropes.service';
+import { CreateTropeDto } from './dtos/create-trope.dto';
+import { SetParentDto } from './dtos/set-parent.dto';
+import { TropeService } from './tropes.service';
 
 @Controller('tropes')
 export class TropeController {
@@ -46,8 +46,8 @@ export class TropeController {
     return trope;
   }
 
-  @Get(':id/books')
-  async findBooks(@Param('id') id: string) {
+  @Get(':id/works')
+  async findWorks(@Param('id') id: string) {
     return this.workTropeService.worksOfTrope(id);
   }
 
@@ -63,8 +63,8 @@ export class TropeController {
   }
 
   @UseGuards(SessionAuthGuard)
-  @Post(':id/books')
-  async addBook(
+  @Post(':id/works')
+  async addWork(
     @Param('id') id: string,
     @Body() dto: AddWorkToTropeDto,
     @CurrentUser() user: AuthenticatedUser,
@@ -79,13 +79,13 @@ export class TropeController {
   }
 
   @UseGuards(SessionAuthGuard)
-  @Post(':id/books/:bookId/vote')
+  @Post(':id/works/:workId/vote')
   async vote(
     @Param('id') id: string,
-    @Param('bookId') bookId: string,
+    @Param('workId') workId: string,
     @Body() dto: VoteDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.workTropeService.vote(bookId, id, user.userId, dto.voteType);
+    return this.workTropeService.vote(workId, id, user.userId, dto.voteType);
   }
 }

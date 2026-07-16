@@ -51,13 +51,13 @@ describe('WorkTropesService', () => {
   });
 
   describe('tropesOfWork', () => {
-    it('throws when the book does not exist', async () => {
+    it('throws when the work does not exist', async () => {
       prisma.work.findUnique.mockResolvedValue(null);
 
       await expect(service.tropesOfWork('missing')).rejects.toThrow(NotFoundException);
     });
 
-    it('returns the tropes linked to the book', async () => {
+    it('returns the tropes linked to the work', async () => {
       prisma.work.findUnique.mockResolvedValue({ id: 'work-1' });
       prisma.workTrope.findMany.mockResolvedValue([
         { trope: { id: 'trope-1' } },
@@ -77,7 +77,7 @@ describe('WorkTropesService', () => {
       await expect(service.worksOfTrope('missing')).rejects.toThrow(NotFoundException);
     });
 
-    it('returns the books linked to the trope', async () => {
+    it('returns the works linked to the trope', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       prisma.workTrope.findMany.mockResolvedValue([
         { work: { id: 'work-1' } },
@@ -91,7 +91,7 @@ describe('WorkTropesService', () => {
   });
 
   describe('linkTropeToWork', () => {
-    it('throws when the book does not exist', async () => {
+    it('throws when the work does not exist', async () => {
       prisma.work.findUnique.mockResolvedValue(null);
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
 
@@ -145,7 +145,7 @@ describe('WorkTropesService', () => {
   });
 
   describe('vote', () => {
-    it('throws when the trope is not linked to the book', async () => {
+    it('throws when the trope is not linked to the work', async () => {
       prisma.workTrope.findUnique.mockResolvedValue(null);
 
       await expect(service.vote('work-1', 'trope-1', 'user-1', VoteType.UP)).rejects.toThrow(

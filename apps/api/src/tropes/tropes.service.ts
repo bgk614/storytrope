@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client.js';
-import { CreateTropeDto } from '../dtos/trope.dto';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../services/prisma.service.js';
+import { CreateTropeDto } from './dtos/create-trope.dto.js';
 
 @Injectable()
 export class TropeService {

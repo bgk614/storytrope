@@ -54,7 +54,7 @@ export function getTropeChildren(id: string) {
 }
 
 export function getTropeBooks(id: string) {
-  return request<Work[]>(`/tropes/${id}/books`, { cache: "no-store" });
+  return request<Work[]>(`/tropes/${id}/works`, { cache: "no-store" });
 }
 
 export function getBooks(params: { skip?: number; take?: number } = {}) {
@@ -62,15 +62,15 @@ export function getBooks(params: { skip?: number; take?: number } = {}) {
   if (params.skip) search.set("skip", String(params.skip));
   if (params.take) search.set("take", String(params.take));
   const qs = search.toString();
-  return request<Work[]>(`/books${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  return request<Work[]>(`/works${qs ? `?${qs}` : ""}`, { cache: "no-store" });
 }
 
 export function getBook(id: string) {
-  return request<Work>(`/books/${id}`, { cache: "no-store" });
+  return request<Work>(`/works/${id}`, { cache: "no-store" });
 }
 
 export function getBookTropes(id: string) {
-  return request<Trope[]>(`/books/${id}/tropes`, { cache: "no-store" });
+  return request<Trope[]>(`/works/${id}/tropes`, { cache: "no-store" });
 }
 
 export function getTopTropes(period: RankingPeriod, take = 10) {
@@ -118,21 +118,21 @@ export function likeTrope(id: string) {
 }
 
 export function addBookToTrope(tropeId: string, workId: string) {
-  return clientRequest<WorkTrope>(`/tropes/${tropeId}/books`, {
+  return clientRequest<WorkTrope>(`/tropes/${tropeId}/works`, {
     method: "POST",
     body: JSON.stringify({ workId }),
   });
 }
 
 export function addTropeToBook(bookId: string, tropeId: string) {
-  return clientRequest<WorkTrope>(`/books/${bookId}/tropes`, {
+  return clientRequest<WorkTrope>(`/works/${bookId}/tropes`, {
     method: "POST",
     body: JSON.stringify({ tropeId }),
   });
 }
 
 export function voteWorkTrope(tropeId: string, bookId: string, voteType: VoteType) {
-  return clientRequest<{ voteScore: number }>(`/tropes/${tropeId}/books/${bookId}/vote`, {
+  return clientRequest<{ voteScore: number }>(`/tropes/${tropeId}/works/${bookId}/vote`, {
     method: "POST",
     body: JSON.stringify({ voteType }),
   });

@@ -13,7 +13,7 @@ export class WorkTropesService {
   async tropesOfWork(workId: string) {
     const work = await this.prisma.work.findUnique({ where: { id: workId } });
     if (!work) {
-      throw new NotFoundException(`Book ${workId} not found`);
+      throw new NotFoundException(`Work ${workId} not found`);
     }
 
     const workTropes = await this.prisma.workTrope.findMany({
@@ -44,7 +44,7 @@ export class WorkTropesService {
       this.prisma.trope.findUnique({ where: { id: tropeId } }),
     ]);
     if (!work) {
-      throw new NotFoundException(`Book ${workId} not found`);
+      throw new NotFoundException(`Work ${workId} not found`);
     }
     if (!trope) {
       throw new NotFoundException(`Trope ${tropeId} not found`);
@@ -62,7 +62,7 @@ export class WorkTropesService {
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ConflictException(`Trope ${tropeId} is already linked to book ${workId}`);
+        throw new ConflictException(`Trope ${tropeId} is already linked to work ${workId}`);
       }
       throw error;
     }
@@ -78,7 +78,7 @@ export class WorkTropesService {
       where: { workId_tropeId: { workId, tropeId } },
     });
     if (!workTrope) {
-      throw new NotFoundException(`Trope ${tropeId} is not linked to book ${workId}`);
+      throw new NotFoundException(`Trope ${tropeId} is not linked to work ${workId}`);
     }
 
     const existingVote = await this.prisma.workTropeVote.findUnique({

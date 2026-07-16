@@ -1,8 +1,8 @@
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '../../generated/prisma/client.js';
-import { PrismaService } from './prisma.service';
-import { TropeService } from './trope.service';
+import { PrismaService } from '../services/prisma.service.js';
+import { TropeService } from './tropes.service';
 
 function prismaKnownError(code: string) {
   return new Prisma.PrismaClientKnownRequestError('mock error', {

@@ -1,11 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { VoteType } from '../../generated/prisma/enums.js';
-import type { AuthenticatedUser } from '../auth/authenticated-user';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
-import { TropeService } from '../services/trope.service';
+import type { AuthenticatedUser } from '../auth/authenticated-user.js';
+import { SessionAuthGuard } from '../auth/session-auth.guard.js';
 import { WorkTropesService } from '../work-tropes/work-tropes.service.js';
-import { TropeController } from './trope.controller';
+import { TropeService } from './tropes.service.js';
+import { TropeController } from './tropes.controller';
 
 describe('TropeController', () => {
   let controller: TropeController;
@@ -100,12 +100,12 @@ describe('TropeController', () => {
     });
   });
 
-  describe('findBooks', () => {
+  describe('findWorks', () => {
     it('delegates to workTropeService.worksOfTrope', async () => {
       const works = [{ id: 'work-1' }];
       workTropeService.worksOfTrope.mockResolvedValue(works);
 
-      const result = await controller.findBooks('trope-1');
+      const result = await controller.findWorks('trope-1');
 
       expect(result).toBe(works);
       expect(workTropeService.worksOfTrope).toHaveBeenCalledWith('trope-1');
@@ -136,12 +136,12 @@ describe('TropeController', () => {
     });
   });
 
-  describe('addBook', () => {
-    it('links the book to the trope as the current user', async () => {
+  describe('addWork', () => {
+    it('links the work to the trope as the current user', async () => {
       const linked = { workId: 'work-1', tropeId: 'trope-1' };
       workTropeService.linkTropeToWork.mockResolvedValue(linked);
 
-      const result = await controller.addBook('trope-1', { workId: 'work-1' }, user);
+      const result = await controller.addWork('trope-1', { workId: 'work-1' }, user);
 
       expect(result).toBe(linked);
       expect(workTropeService.linkTropeToWork).toHaveBeenCalledWith('work-1', 'trope-1', 'user-1');
@@ -160,7 +160,7 @@ describe('TropeController', () => {
   });
 
   describe('vote', () => {
-    it('delegates to workTropeService.vote with book id, trope id, user, and vote type', async () => {
+    it('delegates to workTropeService.vote with work id, trope id, user, and vote type', async () => {
       workTropeService.vote.mockResolvedValue({ voteScore: 1 });
 
       const result = await controller.vote('trope-1', 'work-1', { voteType: VoteType.UP }, user);
