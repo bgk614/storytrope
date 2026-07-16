@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { TopTropesQueryDto } from '../dtos/ranking.dto';
-import { RankingService } from '../services/ranking.service';
+import { TopTropesQueryDto } from './ranking.dto';
+import { RankingService } from './ranking.service';
 
 @Controller('rankings')
 export class RankingController {

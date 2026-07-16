@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
-import type { RankingPeriod } from '../services/ranking.service';
+import type { RankingPeriod } from './ranking.service';
 
 export class TopTropesQueryDto {
   @IsOptional()
