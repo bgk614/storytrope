@@ -1,0 +1,8 @@
+### 회원가입
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+{
+  "email": "test@1.com",
+  "password": "12345123",
+  "nickname": "testste"
+}

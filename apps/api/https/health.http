@@ -1,0 +1,5 @@
+# REST Client
+# .vscode/settingsjson 파일 내에 baseUrl 설정 -> cmd + alt + e 환경 선택
+
+GET {{baseUrl}}/health HTTP/1.1
+content-type: application/json
