@@ -3,14 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { Prisma, Session, User } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserService } from '../users/users.service.js';
+import { UsersService } from '../users/users.service.js';
 import { SignUpDto } from './dto/signup.dto.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private userService: UserService,
+    private userService: UsersService,
     private configService: ConfigService,
   ) {}
 

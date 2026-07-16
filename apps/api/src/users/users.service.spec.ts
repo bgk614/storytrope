@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { UserService } from './users.service.js';
+import { UsersService } from './users.service.js';
 
-describe('UserService', () => {
-  let service: UserService;
+describe('UsersService', () => {
+  let service: UsersService;
   let prisma: {
     user: {
       findUnique: jest.Mock;
@@ -24,10 +24,10 @@ describe('UserService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService, { provide: PrismaService, useValue: prisma }],
+      providers: [UsersService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
-    service = module.get<UserService>(UserService);
+    service = module.get<UsersService>(UsersService);
   });
 
   afterEach(() => {

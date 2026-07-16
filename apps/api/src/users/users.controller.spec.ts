@@ -4,11 +4,11 @@ import { AuthService } from '../auth/auth.service';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { PublicUserDto } from './dto/public-user.dto';
 import { UserDto } from './dto/user.dto';
-import { UserController } from './users.controller';
-import { UserService } from './users.service';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
-describe('UserController', () => {
-  let controller: UserController;
+describe('UsersController', () => {
+  let controller: UsersController;
   let userService: { findById: jest.Mock };
 
   const currentUser: AuthenticatedUser = { userId: 'user-1', sessionId: 'session-1' };
@@ -17,15 +17,15 @@ describe('UserController', () => {
     userService = { findById: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UserController],
+      controllers: [UsersController],
       providers: [
-        { provide: UserService, useValue: userService },
+        { provide: UsersService, useValue: userService },
         // SessionAuthGuard depends on AuthService; stub it so the module compiles.
         { provide: AuthService, useValue: {} },
       ],
     }).compile();
 
-    controller = module.get<UserController>(UserController);
+    controller = module.get<UsersController>(UsersController);
   });
 
   afterEach(() => {

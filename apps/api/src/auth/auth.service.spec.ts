@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserService } from '../users/users.service';
+import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 
 jest.mock('bcrypt');
@@ -31,7 +31,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: PrismaService, useValue: prisma },
-        { provide: UserService, useValue: userService },
+        { provide: UsersService, useValue: userService },
         { provide: ConfigService, useValue: configService },
       ],
     }).compile();

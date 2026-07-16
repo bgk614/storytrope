@@ -4,11 +4,11 @@ import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { PublicUserDto } from './dto/public-user.dto';
 import { UserDto } from './dto/user.dto';
-import { UserService } from './users.service';
+import { UsersService } from './users.service';
 
 @Controller('users')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UsersController {
+  constructor(private readonly userService: UsersService) {}
   @Get('me')
   @UseGuards(SessionAuthGuard)
   async getMe(@CurrentUser() user: AuthenticatedUser) {
