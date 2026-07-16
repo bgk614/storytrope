@@ -9,21 +9,21 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { SetParentDto } from '../dtos/set-parent.dto';
 import { CreateTropeDto } from '../dtos/trope.dto';
 import { VoteDto } from '../dtos/vote.dto';
-import { AddBookToTropeDto } from '../dtos/work-trope.dto';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { TropeService } from '../services/trope.service';
-import { WorkTropeService } from '../services/work-trope.service';
-import type { AuthenticatedUser } from '../auth/authenticated-user';
+import { AddWorkToTropeDto } from '../work-tropes/work-tropes.dto';
+import { WorkTropesService } from '../work-tropes/work-tropes.service';
 
 @Controller('tropes')
 export class TropeController {
   constructor(
     private readonly tropeService: TropeService,
-    private readonly workTropeService: WorkTropeService,
+    private readonly workTropeService: WorkTropesService,
   ) {}
 
   @UseGuards(SessionAuthGuard)
@@ -66,7 +66,7 @@ export class TropeController {
   @Post(':id/books')
   async addBook(
     @Param('id') id: string,
-    @Body() dto: AddBookToTropeDto,
+    @Body() dto: AddWorkToTropeDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workTropeService.linkTropeToWork(dto.workId, id, user.userId);

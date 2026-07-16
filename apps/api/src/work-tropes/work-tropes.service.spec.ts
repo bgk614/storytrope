@@ -1,8 +1,8 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma, VoteType } from '../../generated/prisma/client.js';
-import { PrismaService } from './prisma.service';
-import { WorkTropeService } from './work-trope.service';
+import { PrismaService } from '../services/prisma.service.js';
+import { WorkTropesService } from './work-tropes.service.js';
 
 function prismaKnownError(code: string) {
   return new Prisma.PrismaClientKnownRequestError('mock error', {
@@ -11,8 +11,8 @@ function prismaKnownError(code: string) {
   });
 }
 
-describe('WorkTropeService', () => {
-  let service: WorkTropeService;
+describe('WorkTropesService', () => {
+  let service: WorkTropesService;
   let prisma: {
     work: { findUnique: jest.Mock };
     trope: { findUnique: jest.Mock };
@@ -40,10 +40,10 @@ describe('WorkTropeService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WorkTropeService, { provide: PrismaService, useValue: prisma }],
+      providers: [WorkTropesService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
-    service = module.get<WorkTropeService>(WorkTropeService);
+    service = module.get<WorkTropesService>(WorkTropesService);
   });
 
   afterEach(() => {

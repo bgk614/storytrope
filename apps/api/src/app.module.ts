@@ -7,18 +7,19 @@ import * as Joi from 'joi';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { AppController } from './controllers/app.controller';
-import { BookController } from './controllers/book.controller';
-import { HealthController } from './controllers/health.controller';
 import { RankingController } from './controllers/ranking.controller';
 import { TropeController } from './controllers/trope.controller';
+import { HealthController } from './health.controller';
 import { AppService } from './services/app.service';
 import { PrismaService } from './services/prisma.service';
 import { RankingService } from './services/ranking.service';
 import { TropeService } from './services/trope.service';
-import { WorkTropeService } from './services/work-trope.service';
-import { WorkService } from './services/work.service';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
+import { WorkTropesController } from './work-tropes/work-tropes.controller';
+import { WorkTropesService } from './work-tropes/work-tropes.service';
+import { WorksController } from './works/works.controller';
+import { WorksService } from './works/works.service';
 
 @Module({
   imports: [
@@ -40,7 +41,8 @@ import { UserService } from './user/user.service';
   controllers: [
     AppController,
     AuthController,
-    BookController,
+    WorksController,
+    WorkTropesController,
     TropeController,
     RankingController,
     HealthController,
@@ -51,9 +53,9 @@ import { UserService } from './user/user.service';
     PrismaService,
     UserService,
     AuthService,
-    WorkService,
+    WorksService,
     TropeService,
-    WorkTropeService,
+    WorkTropesService,
     RankingService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],

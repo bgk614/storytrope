@@ -1,13 +1,13 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, VoteType, WorkTropeSource } from '../../generated/prisma/client.js';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../services/prisma.service.js';
 
 function voteContribution(voteType: VoteType): number {
   return voteType === VoteType.UP ? 1 : -1;
 }
 
 @Injectable()
-export class WorkTropeService {
+export class WorkTropesService {
   constructor(private prisma: PrismaService) {}
 
   async tropesOfWork(workId: string) {

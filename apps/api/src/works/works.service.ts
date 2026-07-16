@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client.js';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../services/prisma.service.js';
 
 const workListInclude = {
   authors: { include: { author: true } },
@@ -8,7 +8,7 @@ const workListInclude = {
 } satisfies Prisma.WorkInclude;
 
 @Injectable()
-export class WorkService {
+export class WorksService {
   constructor(private prisma: PrismaService) {}
 
   async works(parameters: { skip?: number; take?: number }) {

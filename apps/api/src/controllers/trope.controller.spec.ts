@@ -4,7 +4,7 @@ import { VoteType } from '../../generated/prisma/enums.js';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { TropeService } from '../services/trope.service';
-import { WorkTropeService } from '../services/work-trope.service';
+import { WorkTropesService } from '../work-tropes/work-tropes.service.js';
 import { TropeController } from './trope.controller';
 
 describe('TropeController', () => {
@@ -39,7 +39,7 @@ describe('TropeController', () => {
       controllers: [TropeController],
       providers: [
         { provide: TropeService, useValue: tropeService },
-        { provide: WorkTropeService, useValue: workTropeService },
+        { provide: WorkTropesService, useValue: workTropeService },
       ],
     })
       .overrideGuard(SessionAuthGuard)

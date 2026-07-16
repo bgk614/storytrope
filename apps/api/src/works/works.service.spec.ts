@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from './prisma.service';
-import { WorkService } from './work.service';
+import { PrismaService } from '../services/prisma.service';
+import { WorksService } from './works.service';
 
 describe('WorkService', () => {
-  let service: WorkService;
+  let service: WorksService;
   let prisma: { work: { findMany: jest.Mock; findUnique: jest.Mock } };
 
   beforeEach(async () => {
@@ -15,10 +15,10 @@ describe('WorkService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WorkService, { provide: PrismaService, useValue: prisma }],
+      providers: [WorksService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
-    service = module.get<WorkService>(WorkService);
+    service = module.get<WorksService>(WorksService);
   });
 
   afterEach(() => {
