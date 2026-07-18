@@ -32,7 +32,7 @@ model User {
 }
 
 model Session {
-  id String @id @default(cuid())
+  id String @id // 세션 토큰의 SHA-256 해시 (토큰 원문은 쿠키에)
 
   userId String
   user   User   @relation(fields: [userId], references: [id])

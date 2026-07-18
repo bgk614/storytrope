@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Prisma, Session, User } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpDto } from './dto/signup.dto.js';
+import { generateSessionToken, hashSessionToken } from './session-token.js';
 
 @Injectable()
 export class AuthService {
@@ -26,15 +27,16 @@ export class AuthService {
     return user;
   }
 
-  async login(user: User): Promise<{ sessionId: string; expiresAt: Date }> {
+  async login(user: User): Promise<{ sessionToken: string; expiresAt: Date }> {
     const sessionDays = this.configService.get<number>('SESSION_DAYS') ?? 7;
     const expiresAt = new Date(Date.now() + sessionDays * 24 * 60 * 60 * 1000);
 
-    const session = await this.prisma.session.create({
-      data: { userId: user.id, expiresAt },
+    const sessionToken = generateSessionToken();
+    await this.prisma.session.create({
+      data: { id: hashSessionToken(sessionToken), userId: user.id, expiresAt },
     });
 
-    return { sessionId: session.id, expiresAt };
+    return { sessionToken, expiresAt };
   }
 
   async signUp(dto: SignUpDto): Promise<Omit<User, 'passwordHash'>> {
@@ -64,9 +66,9 @@ export class AuthService {
     await this.prisma.session.deleteMany({ where: { id: sessionId } });
   }
 
-  async getValidSession(sessionId: string): Promise<Session> {
+  async getValidSession(sessionToken: string): Promise<Session> {
     const session = await this.prisma.session.findUnique({
-      where: { id: sessionId },
+      where: { id: hashSessionToken(sessionToken) },
     });
 
     if (!session || session.expiresAt < new Date()) {

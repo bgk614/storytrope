@@ -13,12 +13,12 @@ export class SessionAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request & { user?: AuthenticatedUser }>();
 
     const cookies = request.cookies as Record<string, string> | undefined;
-    const sessionId = cookies?.[SESSION_COOKIE];
-    if (!sessionId) {
+    const sessionToken = cookies?.[SESSION_COOKIE];
+    if (!sessionToken) {
       throw new UnauthorizedException('Not authenticated');
     }
 
-    const session = await this.authService.getValidSession(sessionId);
+    const session = await this.authService.getValidSession(sessionToken);
     request.user = { userId: session.userId, sessionId: session.id };
     return true;
   }

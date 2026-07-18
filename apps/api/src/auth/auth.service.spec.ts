@@ -4,13 +4,23 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
+import { hashSessionToken } from './session-token';
 
 jest.mock('bcrypt');
+
+type SessionCreateMock = jest.Mock<
+  Promise<unknown>,
+  [{ data: { id: string; userId: string; expiresAt: Date } }]
+>;
 
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: {
-    session: { create: jest.Mock; deleteMany: jest.Mock; findUnique: jest.Mock };
+    session: {
+      create: SessionCreateMock;
+      deleteMany: jest.Mock;
+      findUnique: jest.Mock;
+    };
     user: { findUnique: jest.Mock };
   };
   let configService: { get: jest.Mock };
@@ -18,7 +28,7 @@ describe('AuthService', () => {
   beforeEach(async () => {
     prisma = {
       session: {
-        create: jest.fn(),
+        create: jest.fn() as SessionCreateMock,
         deleteMany: jest.fn(),
         findUnique: jest.fn(),
       },
@@ -44,20 +54,20 @@ describe('AuthService', () => {
   });
 
   describe('validateUser', () => {
-    it('throws when no user matches the email', async () => {
+    it('미가입 이메일', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(service.validateUser('a@b.com', 'pw')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('throws when the password does not match', async () => {
+    it('비밀번호 불일치', async () => {
       prisma.user.findUnique.mockResolvedValue({ passwordHash: 'hash' });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(service.validateUser('a@b.com', 'wrong')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('returns the user when the password matches', async () => {
+    it('비밀번호 일치', async () => {
       const user = { id: 'user-1', passwordHash: 'hash' };
       prisma.user.findUnique.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
@@ -71,22 +81,47 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('creates a session and returns the session id', async () => {
+    it('세션 생성', async () => {
       configService.get.mockReturnValue(14);
-      prisma.session.create.mockResolvedValue({ id: 'session-1' });
+      prisma.session.create.mockResolvedValue({});
 
       const result = await service.login({ id: 'user-1' } as never);
 
       expect(prisma.session.create).toHaveBeenCalledWith({
-        data: { userId: 'user-1', expiresAt: expect.any(Date) as Date },
+        data: {
+          id: expect.any(String) as string,
+          userId: 'user-1',
+          expiresAt: expect.any(Date) as Date,
+        },
       });
-      expect(result.sessionId).toBe('session-1');
+      expect(typeof result.sessionToken).toBe('string');
       expect(result.expiresAt).toBeInstanceOf(Date);
     });
 
-    it('honors SESSION_DAYS when computing the expiry', async () => {
+    it('해시만 저장', async () => {
       configService.get.mockReturnValue(14);
-      prisma.session.create.mockResolvedValue({ id: 'session-1' });
+      prisma.session.create.mockResolvedValue({});
+
+      const result = await service.login({ id: 'user-1' } as never);
+
+      const createArguments = prisma.session.create.mock.calls[0][0] as { data: { id: string } };
+      expect(createArguments.data.id).not.toBe(result.sessionToken);
+      expect(createArguments.data.id).toBe(hashSessionToken(result.sessionToken));
+    });
+
+    it('토큰 매번 다름', async () => {
+      configService.get.mockReturnValue(14);
+      prisma.session.create.mockResolvedValue({});
+
+      const first = await service.login({ id: 'user-1' } as never);
+      const second = await service.login({ id: 'user-1' } as never);
+
+      expect(first.sessionToken).not.toBe(second.sessionToken);
+    });
+
+    it('SESSION_DAYS 반영', async () => {
+      configService.get.mockReturnValue(14);
+      prisma.session.create.mockResolvedValue({});
 
       const before = Date.now();
       const result = await service.login({ id: 'user-1' } as never);
@@ -95,9 +130,9 @@ describe('AuthService', () => {
       expect(result.expiresAt.getTime()).toBeGreaterThan(expectedMin);
     });
 
-    it('defaults SESSION_DAYS to 7 when unset', async () => {
+    it('SESSION_DAYS 기본값 7일', async () => {
       configService.get.mockReturnValue(void 0);
-      prisma.session.create.mockResolvedValue({ id: 'session-1' });
+      prisma.session.create.mockResolvedValue({});
 
       const before = Date.now();
       const result = await service.login({ id: 'user-1' } as never);
@@ -108,7 +143,7 @@ describe('AuthService', () => {
   });
 
   describe('logout', () => {
-    it('deletes the session by id', async () => {
+    it('세션 삭제', async () => {
       prisma.session.deleteMany.mockResolvedValue({ count: 1 });
 
       await service.logout('session-1');
@@ -118,28 +153,34 @@ describe('AuthService', () => {
   });
 
   describe('getValidSession', () => {
-    it('throws when the session does not exist', async () => {
+    it('세션 없음', async () => {
       prisma.session.findUnique.mockResolvedValue(null);
 
       await expect(service.getValidSession('missing')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('throws when the session has expired', async () => {
+    it('세션 만료', async () => {
       prisma.session.findUnique.mockResolvedValue({
-        id: 'session-1',
+        id: hashSessionToken('token-1'),
         expiresAt: new Date(Date.now() - 1000),
       });
 
-      await expect(service.getValidSession('session-1')).rejects.toThrow(UnauthorizedException);
+      await expect(service.getValidSession('token-1')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('returns the session when still valid', async () => {
-      const session = { id: 'session-1', expiresAt: new Date(Date.now() + 1000) };
+    it('해시로 조회', async () => {
+      const session = {
+        id: hashSessionToken('token-1'),
+        expiresAt: new Date(Date.now() + 1000),
+      };
       prisma.session.findUnique.mockResolvedValue(session);
 
-      const result = await service.getValidSession('session-1');
+      const result = await service.getValidSession('token-1');
 
       expect(result).toBe(session);
+      expect(prisma.session.findUnique).toHaveBeenCalledWith({
+        where: { id: hashSessionToken('token-1') },
+      });
     });
   });
 });

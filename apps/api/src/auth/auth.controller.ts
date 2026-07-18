@@ -25,9 +25,9 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<{ success: true }> {
     const user = await this.authService.validateUser(dto.email, dto.password);
-    const { sessionId, expiresAt } = await this.authService.login(user);
+    const { sessionToken, expiresAt } = await this.authService.login(user);
 
-    response.cookie(SESSION_COOKIE, sessionId, {
+    response.cookie(SESSION_COOKIE, sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

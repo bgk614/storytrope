@@ -40,7 +40,7 @@ describe('AuthController', () => {
   });
 
   describe('signUp', () => {
-    it('creates the user and returns only public fields', async () => {
+    it('회원가입', async () => {
       authService.signUp.mockResolvedValue({
         id: 'user-1',
         email: 'a@b.com',
@@ -58,11 +58,11 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('validates credentials, logs in, and sets the session cookie', async () => {
+    it('로그인', async () => {
       const user = { id: 'user-1' };
       const expiresAt = new Date(Date.now() + 1000);
       authService.validateUser.mockResolvedValue(user);
-      authService.login.mockResolvedValue({ sessionId: 'session-1', expiresAt });
+      authService.login.mockResolvedValue({ sessionToken: 'token-1', expiresAt });
 
       const result = await controller.login(
         { email: 'a@b.com', password: 'pw' },
@@ -73,13 +73,13 @@ describe('AuthController', () => {
       expect(authService.login).toHaveBeenCalledWith(user);
       expect(response.cookie).toHaveBeenCalledWith(
         'session_id',
-        'session-1',
+        'token-1',
         expect.objectContaining({ httpOnly: true, path: '/', expires: expiresAt }),
       );
       expect(result).toEqual({ success: true });
     });
 
-    it('propagates errors from validateUser without setting a cookie', async () => {
+    it('로그인 실패', async () => {
       authService.validateUser.mockRejectedValue(new Error('invalid credentials'));
 
       await expect(
@@ -90,7 +90,7 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    it('logs out the current session and clears the cookie', async () => {
+    it('로그아웃', async () => {
       const user: AuthenticatedUser = { userId: 'user-1', sessionId: 'session-1' };
 
       const result = await controller.logout(user, response as unknown as Response);
