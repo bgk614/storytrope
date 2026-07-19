@@ -88,7 +88,7 @@ export function getBookTropes(id: string, params: { skip?: number; take?: number
 }
 
 export function getTopTropes(period: RankingPeriod, take = 10) {
-  return request<RankingEntry[]>(`/rankings/tropes?period=${period}&take=${take}`, {
+  return request<RankingEntry[]>(`/ranking/tropes?period=${period}&take=${take}`, {
     cache: "no-store",
   });
 }
