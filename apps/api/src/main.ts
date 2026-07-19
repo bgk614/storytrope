@@ -18,7 +18,7 @@ async function bootstrap() {
 
   // 리버스 프록시(nginx/로드밸런서) 뒤에서는 X-Forwarded-For 기준으로 클라이언트 IP를
   // 식별해야 rate limit이 사용자별로 걸린다. 프록시 없이 직접 노출될 때(기본값 0)는
-  // 헤더 위조로 제한을 우회할 수 있으므로 꺼둔다.
+  // 헤더 위조로 제한을 우회할 수 있으므로 꺼둠
   const trustProxyHops = configService.get<number>('TRUST_PROXY_HOPS') ?? 0;
   if (trustProxyHops > 0) {
     app.set('trust proxy', trustProxyHops);
@@ -30,7 +30,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('docs', app, documentFactory);
 
   app.enableCors({
     origin: configService.get<string>('FRONT_URL'),
