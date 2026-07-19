@@ -8,6 +8,6 @@ if echo "$CHANGED_FILES" | grep -q '^apps/api/'; then
 fi
 
 if echo "$CHANGED_FILES" | grep -q '^apps/web/'; then
-  echo "==> apps/web: build"
-  (cd apps/web && pnpm run build) || exit 1
+  echo "==> apps/web: build & test"
+  (cd apps/web && pnpm run build && pnpm run test) || exit 1
 fi
