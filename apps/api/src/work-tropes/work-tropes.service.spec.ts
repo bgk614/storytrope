@@ -63,13 +63,13 @@ describe('WorkTropesService', () => {
   });
 
   describe('tropesOfWork', () => {
-    it('throws when the work does not exist', async () => {
+    it('작품이 없으면 예외', async () => {
       prisma.work.findUnique.mockResolvedValue(null);
 
       await expect(service.tropesOfWork('missing')).rejects.toThrow(NotFoundException);
     });
 
-    it('returns the tropes linked to the work', async () => {
+    it('작품에 연결된 트로프 반환', async () => {
       prisma.work.findUnique.mockResolvedValue({ id: 'work-1' });
       prisma.workTrope.findMany.mockResolvedValue([
         { trope: { id: 'trope-1' } },
@@ -83,13 +83,13 @@ describe('WorkTropesService', () => {
   });
 
   describe('worksOfTrope', () => {
-    it('throws when the trope does not exist', async () => {
+    it('트로프가 없으면 예외', async () => {
       prisma.trope.findUnique.mockResolvedValue(null);
 
       await expect(service.worksOfTrope('missing')).rejects.toThrow(NotFoundException);
     });
 
-    it('returns the works linked to the trope', async () => {
+    it('트로프에 연결된 작품 반환', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       prisma.workTrope.findMany.mockResolvedValue([
         { work: { id: 'work-1' } },
@@ -103,7 +103,7 @@ describe('WorkTropesService', () => {
   });
 
   describe('linkTropeToWork', () => {
-    it('throws when the work does not exist', async () => {
+    it('작품이 없으면 예외', async () => {
       prisma.work.findUnique.mockResolvedValue(null);
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
 
@@ -112,7 +112,7 @@ describe('WorkTropesService', () => {
       );
     });
 
-    it('throws when the trope does not exist', async () => {
+    it('트로프가 없으면 예외', async () => {
       prisma.work.findUnique.mockResolvedValue({ id: 'work-1' });
       prisma.trope.findUnique.mockResolvedValue(null);
 
@@ -121,7 +121,7 @@ describe('WorkTropesService', () => {
       );
     });
 
-    it('creates the link with source USER', async () => {
+    it('source USER로 연결 생성', async () => {
       prisma.work.findUnique.mockResolvedValue({ id: 'work-1' });
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       const created = { workId: 'work-1', tropeId: 'trope-1' };
@@ -136,7 +136,7 @@ describe('WorkTropesService', () => {
       });
     });
 
-    it('maps a duplicate link to ConflictException', async () => {
+    it('중복 연결이면 ConflictException', async () => {
       prisma.work.findUnique.mockResolvedValue({ id: 'work-1' });
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       prisma.workTrope.create.mockRejectedValue(prismaKnownError('P2002'));
@@ -146,7 +146,7 @@ describe('WorkTropesService', () => {
       );
     });
 
-    it('rethrows unrelated errors', async () => {
+    it('무관한 에러는 그대로 던짐', async () => {
       prisma.work.findUnique.mockResolvedValue({ id: 'work-1' });
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       const error = new Error('boom');
@@ -157,7 +157,7 @@ describe('WorkTropesService', () => {
   });
 
   describe('vote', () => {
-    it('throws when the trope is not linked to the work', async () => {
+    it('트로프가 작품에 연결 안 됐으면 예외', async () => {
       prisma.workTrope.findUnique.mockResolvedValue(null);
 
       await expect(service.vote('work-1', 'trope-1', 'user-1', VoteType.UP)).rejects.toThrow(
@@ -165,7 +165,7 @@ describe('WorkTropesService', () => {
       );
     });
 
-    it('creates a new UP vote and increments the score', async () => {
+    it('신규 UP 투표, 점수 증가', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 0 });
       prisma.workTropeVote.findUnique.mockResolvedValue(null);
       prisma.workTropeVote.create.mockResolvedValue({});
@@ -183,7 +183,7 @@ describe('WorkTropesService', () => {
       });
     });
 
-    it('creates a new DOWN vote and decrements the score', async () => {
+    it('신규 DOWN 투표, 점수 감소', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 0 });
       prisma.workTropeVote.findUnique.mockResolvedValue(null);
       prisma.workTropeVote.create.mockResolvedValue({});
@@ -198,7 +198,7 @@ describe('WorkTropesService', () => {
       });
     });
 
-    it('returns the current score without writes when re-casting the same vote type', async () => {
+    it('같은 투표 재요청 시 쓰기 없이 현재 점수 반환', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 5 });
       prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
       prisma.workTrope.findUniqueOrThrow.mockResolvedValue({ voteScore: 5 });
@@ -209,7 +209,7 @@ describe('WorkTropesService', () => {
       expect(prisma.$transaction).not.toHaveBeenCalled();
     });
 
-    it('flips an existing vote and applies double the delta', async () => {
+    it('투표 뒤집으면 델타를 두 배로 적용', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
       prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
       prisma.workTropeVote.updateMany.mockResolvedValue({ count: 1 });
@@ -228,7 +228,7 @@ describe('WorkTropesService', () => {
       });
     });
 
-    it('retries as a vote change when a concurrent first vote wins the race', async () => {
+    it('동시 최초 투표가 이기면 변경으로 재시도', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
       prisma.workTropeVote.findUnique
         .mockResolvedValueOnce(null)
@@ -246,7 +246,7 @@ describe('WorkTropesService', () => {
       });
     });
 
-    it('does not double-apply the delta when a concurrent flip already happened', async () => {
+    it('동시 뒤집기가 이미 있었으면 델타 중복 적용 안 함', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
       prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
       prisma.workTropeVote.updateMany.mockResolvedValue({ count: 0 });

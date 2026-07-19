@@ -22,7 +22,7 @@ describe('RankingController', () => {
     jest.clearAllMocks();
   });
 
-  it('defaults to weekly period and take of 10 when omitted', async () => {
+  it('기본값: weekly, take 10', async () => {
     rankingService.topTropes.mockResolvedValue([]);
 
     await controller.topTropes({});
@@ -30,7 +30,7 @@ describe('RankingController', () => {
     expect(rankingService.topTropes).toHaveBeenCalledWith('weekly', 10);
   });
 
-  it('passes through a validated period and take', async () => {
+  it('period/take 그대로 전달', async () => {
     rankingService.topTropes.mockResolvedValue([]);
 
     await controller.topTropes({ period: 'monthly', take: 25 });

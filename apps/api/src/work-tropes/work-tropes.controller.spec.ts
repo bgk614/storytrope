@@ -27,7 +27,7 @@ describe('WorkTropesController', () => {
   });
 
   describe('findTropes', () => {
-    it('delegates to workTropesService.tropesOfWork', async () => {
+    it('workTropesService.tropesOfWork 호출로 처리', async () => {
       const tropes = [{ id: 'trope-1' }];
       workTropesService.tropesOfWork.mockResolvedValue(tropes);
 
@@ -42,7 +42,7 @@ describe('WorkTropesController', () => {
   });
 
   describe('addTrope', () => {
-    it('links the trope to the work as the current user', async () => {
+    it('현재 사용자로 트로프-작품 연결', async () => {
       const linked = { workId: 'work-1', tropeId: 'trope-1' };
       workTropesService.linkTropeToWork.mockResolvedValue(linked);
       const user: AuthenticatedUser = { userId: 'user-1', sessionId: 'session-1' };

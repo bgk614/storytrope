@@ -26,7 +26,7 @@ describe('WorkService', () => {
   });
 
   describe('works', () => {
-    it('passes skip/take through and orders by createdAt desc', async () => {
+    it('skip/take 전달, createdAt desc 정렬', async () => {
       const works = [{ id: 'work-1' }];
       prisma.work.findMany.mockResolvedValue(works);
 
@@ -44,7 +44,7 @@ describe('WorkService', () => {
       });
     });
 
-    it('allows skip/take to be omitted', async () => {
+    it('skip/take 생략 가능', async () => {
       prisma.work.findMany.mockResolvedValue([]);
 
       await service.works({});
@@ -56,7 +56,7 @@ describe('WorkService', () => {
   });
 
   describe('work', () => {
-    it('returns the work matched by the unique where clause', async () => {
+    it('where 조건으로 작품 조회', async () => {
       const work = { id: 'work-1' };
       prisma.work.findUnique.mockResolvedValue(work);
 
@@ -72,7 +72,7 @@ describe('WorkService', () => {
       });
     });
 
-    it('returns null when no work matches', async () => {
+    it('없으면 null', async () => {
       prisma.work.findUnique.mockResolvedValue(null);
 
       const result = await service.work({ id: 'missing' });

@@ -54,7 +54,7 @@ describe('TropesController', () => {
   });
 
   describe('create', () => {
-    it('delegates to tropeService.createTrope', async () => {
+    it('tropeService.createTrope 호출로 처리', async () => {
       const created = { id: 'trope-1', name: 'Chosen One' };
       tropeService.createTrope.mockResolvedValue(created);
 
@@ -66,7 +66,7 @@ describe('TropesController', () => {
   });
 
   describe('findAll', () => {
-    it('passes topLevelOnly through with pagination defaults', async () => {
+    it('topLevelOnly 전달, 페이지네이션 기본값 적용', async () => {
       tropeService.tropes.mockResolvedValue([]);
 
       await controller.findAll({ topLevelOnly: true });
@@ -78,7 +78,7 @@ describe('TropesController', () => {
       });
     });
 
-    it('defaults topLevelOnly to false and caps take at 100', async () => {
+    it('topLevelOnly 기본 false, take 최대 100', async () => {
       tropeService.tropes.mockResolvedValue([]);
 
       await controller.findAll({});
@@ -90,7 +90,7 @@ describe('TropesController', () => {
       });
     });
 
-    it('forwards explicit skip/take', async () => {
+    it('명시한 skip/take 전달', async () => {
       tropeService.tropes.mockResolvedValue([]);
 
       await controller.findAll({ skip: 10, take: 5 });
@@ -104,13 +104,13 @@ describe('TropesController', () => {
   });
 
   describe('findOne', () => {
-    it('해당 트로프가 존재하지 않을 떄 throws NotFoundException', async () => {
+    it('트로프가 없으면 NotFoundException', async () => {
       tropeService.trope.mockResolvedValue(null);
 
       await expect(controller.findOne('missing')).rejects.toThrow(NotFoundException);
     });
 
-    it('returns the trope when found', async () => {
+    it('찾으면 트로프 반환', async () => {
       const trope = { id: 'trope-1' };
       tropeService.trope.mockResolvedValue(trope);
 
@@ -121,7 +121,7 @@ describe('TropesController', () => {
   });
 
   describe('findWorks', () => {
-    it('delegates to workTropeService.worksOfTrope', async () => {
+    it('workTropeService.worksOfTrope 호출로 처리', async () => {
       const works = [{ id: 'work-1' }];
       workTropeService.worksOfTrope.mockResolvedValue(works);
 
@@ -136,7 +136,7 @@ describe('TropesController', () => {
   });
 
   describe('findChildren', () => {
-    it('delegates to tropeService.children', async () => {
+    it('tropeService.children 호출로 처리', async () => {
       const children = [{ id: 'child-1' }];
       tropeService.children.mockResolvedValue(children);
 
@@ -151,7 +151,7 @@ describe('TropesController', () => {
   });
 
   describe('setParent', () => {
-    it('delegates to tropeService.setParent with the dto parentId', async () => {
+    it('dto의 parentId로 tropeService.setParent 호출로 처리', async () => {
       const updated = { id: 'trope-1', parentId: 'trope-2' };
       tropeService.setParent.mockResolvedValue(updated);
 
@@ -163,7 +163,7 @@ describe('TropesController', () => {
   });
 
   describe('addWork', () => {
-    it('links the work to the trope as the current user', async () => {
+    it('현재 사용자로 트로프-작품 연결', async () => {
       const linked = { workId: 'work-1', tropeId: 'trope-1' };
       workTropeService.linkTropeToWork.mockResolvedValue(linked);
 
@@ -175,7 +175,7 @@ describe('TropesController', () => {
   });
 
   describe('like', () => {
-    it('delegates to tropeService.toggleLike as the current user', async () => {
+    it('현재 사용자로 tropeService.toggleLike 호출로 처리', async () => {
       tropeService.toggleLike.mockResolvedValue({ liked: true, likeScore: 1 });
 
       const result = await controller.like('trope-1', user);
@@ -186,7 +186,7 @@ describe('TropesController', () => {
   });
 
   describe('vote', () => {
-    it('delegates to workTropeService.vote with work id, trope id, user, and vote type', async () => {
+    it('workId/tropeId/user/voteType으로 workTropeService.vote 호출로 처리', async () => {
       workTropeService.vote.mockResolvedValue({ voteScore: 1 });
 
       const result = await controller.vote('trope-1', 'work-1', { voteType: VoteType.UP }, user);

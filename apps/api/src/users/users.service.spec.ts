@@ -35,7 +35,7 @@ describe('UsersService', () => {
   });
 
   describe('findById', () => {
-    it('finds a user by id', async () => {
+    it('id로 조회', async () => {
       const user = { id: 'user-1' };
       prisma.user.findUnique.mockResolvedValue(user);
 
@@ -45,7 +45,7 @@ describe('UsersService', () => {
       expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'user-1' } });
     });
 
-    it('returns null when no user matches', async () => {
+    it('없으면 null', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       const result = await service.findById('missing');
@@ -55,7 +55,7 @@ describe('UsersService', () => {
   });
 
   describe('list', () => {
-    it('passes all pagination/filter parameters through', async () => {
+    it('페이지네이션/필터 파라미터 그대로 전달', async () => {
       const users = [{ id: 'user-1' }];
       prisma.user.findMany.mockResolvedValue(users);
 
@@ -75,7 +75,7 @@ describe('UsersService', () => {
   });
 
   describe('update', () => {
-    it('updates the user matched by where clause', async () => {
+    it('where 조건으로 업데이트', async () => {
       const updated = { id: 'user-1', nickname: 'new-nick' };
       prisma.user.update.mockResolvedValue(updated);
 
@@ -93,7 +93,7 @@ describe('UsersService', () => {
   });
 
   describe('delete', () => {
-    it('deletes the user matched by where clause', async () => {
+    it('where 조건으로 삭제', async () => {
       const deleted = { id: 'user-1' };
       prisma.user.delete.mockResolvedValue(deleted);
 

@@ -30,7 +30,7 @@ describe('HealthController', () => {
     jest.clearAllMocks();
   });
 
-  it('runs a database ping check through HealthCheckService', async () => {
+  it('핑 체크 실행', async () => {
     const result = { status: 'ok', info: {}, error: {}, details: {} };
     health.check.mockImplementation(async (indicators: Array<() => Promise<unknown>>) => {
       await Promise.all(indicators.map((indicator) => indicator()));

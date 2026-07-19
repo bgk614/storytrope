@@ -28,7 +28,7 @@ describe('RankingService', () => {
     jest.clearAllMocks();
   });
 
-  it('returns an empty array when there are no votes or likes', async () => {
+  it('투표/좋아요 없으면 빈 배열', async () => {
     prisma.workTropeVote.groupBy.mockResolvedValue([]);
     prisma.tropeLike.groupBy.mockResolvedValue([]);
 
@@ -38,7 +38,7 @@ describe('RankingService', () => {
     expect(prisma.trope.findMany).not.toHaveBeenCalled();
   });
 
-  it('aggregates UP/DOWN vote counts and likes into a score, sorted descending', async () => {
+  it('점수 집계 후 내림차순 정렬', async () => {
     prisma.workTropeVote.groupBy.mockResolvedValue([
       { tropeId: 'trope-1', voteType: 'UP', _count: 2 },
       { tropeId: 'trope-2', voteType: 'UP', _count: 1 },
@@ -51,10 +51,10 @@ describe('RankingService', () => {
       { id: 'trope-2', name: 'B' },
     ]);
 
-    // trope-1 score: 2 (UP x2)
-    // trope-2 score: 1 (UP) - 1 (DOWN) + 2 (likes) = 2
-    // trope-3 score: -1 (DOWN)
-    // trope-1 and trope-2 tie at 2; stable sort keeps insertion order (trope-1 first)
+    // trope-1 점수: 2 (UP x2)
+    // trope-2 점수: 1 (UP) - 1 (DOWN) + 2 (좋아요) = 2
+    // trope-3 점수: -1 (DOWN)
+    // trope-1과 trope-2는 2점 동점 - 입력 순서 유지 (trope-1이 먼저)
     const result = await service.topTropes('weekly', 2);
 
     expect(prisma.trope.findMany).toHaveBeenCalledWith({
@@ -67,7 +67,7 @@ describe('RankingService', () => {
     ]);
   });
 
-  it('limits results to the requested take', async () => {
+  it('take만큼 제한', async () => {
     prisma.workTropeVote.groupBy.mockResolvedValue([
       { tropeId: 'trope-1', voteType: 'UP', _count: 1 },
       { tropeId: 'trope-2', voteType: 'UP', _count: 2 },
@@ -85,7 +85,7 @@ describe('RankingService', () => {
     expect(result[0]).toEqual({ trope: { id: 'trope-2', name: 'B' }, score: 2 });
   });
 
-  it('queries votes/likes since the start of the requested period', async () => {
+  it('기간 시작 시점부터 조회', async () => {
     prisma.workTropeVote.groupBy.mockResolvedValue([]);
     prisma.tropeLike.groupBy.mockResolvedValue([]);
 

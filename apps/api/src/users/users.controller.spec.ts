@@ -20,7 +20,7 @@ describe('UsersController', () => {
       controllers: [UsersController],
       providers: [
         { provide: UsersService, useValue: userService },
-        // SessionAuthGuard depends on AuthService; stub it so the module compiles.
+        // SessionAuthGuard가 AuthService에 의존하므로 모듈 컴파일을 위해 스텁 처리
         { provide: AuthService, useValue: {} },
       ],
     }).compile();
@@ -33,7 +33,7 @@ describe('UsersController', () => {
   });
 
   describe('getMe', () => {
-    it('returns the caller profile as a UserDto (email included)', async () => {
+    it('본인 프로필 조회 (이메일 포함)', async () => {
       const user = { id: 'user-1', email: 'a@b.com', nickname: 'nick' };
       userService.findById.mockResolvedValue(user);
 
@@ -44,7 +44,7 @@ describe('UsersController', () => {
       expect(result).toEqual({ id: 'user-1', email: 'a@b.com', nickname: 'nick' });
     });
 
-    it('throws NotFound when the caller no longer exists', async () => {
+    it('탈퇴한 사용자면 NotFound', async () => {
       userService.findById.mockResolvedValue(null);
 
       await expect(controller.getMe(currentUser)).rejects.toBeInstanceOf(NotFoundException);
@@ -52,7 +52,7 @@ describe('UsersController', () => {
   });
 
   describe('findOne', () => {
-    it('returns a public profile without sensitive fields', async () => {
+    it('공개 프로필 조회 (민감 정보 제외)', async () => {
       const user = { id: 'user-2', email: 'secret@b.com', nickname: 'other' };
       userService.findById.mockResolvedValue(user);
 
@@ -64,7 +64,7 @@ describe('UsersController', () => {
       expect(result).not.toHaveProperty('email');
     });
 
-    it('throws NotFound when the user does not exist', async () => {
+    it('존재하지 않는 사용자면 NotFound', async () => {
       userService.findById.mockResolvedValue(null);
 
       await expect(controller.findOne('missing')).rejects.toBeInstanceOf(NotFoundException);

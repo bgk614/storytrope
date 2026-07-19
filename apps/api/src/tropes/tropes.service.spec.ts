@@ -58,7 +58,7 @@ describe('TropeService', () => {
   });
 
   describe('tropes', () => {
-    it('filters to top-level tropes when requested', async () => {
+    it('요청 시 최상위 트로프만 필터링', async () => {
       prisma.trope.findMany.mockResolvedValue([]);
 
       await service.tropes({ topLevelOnly: true });
@@ -70,7 +70,7 @@ describe('TropeService', () => {
       });
     });
 
-    it('does not filter when topLevelOnly is falsy', async () => {
+    it('topLevelOnly가 falsy면 필터링 안 함', async () => {
       prisma.trope.findMany.mockResolvedValue([]);
 
       await service.tropes({});
@@ -82,7 +82,7 @@ describe('TropeService', () => {
   });
 
   describe('trope', () => {
-    it('finds a trope by where clause, omitting description', async () => {
+    it('where 조건으로 조회, description 제외', async () => {
       const trope = { id: 'trope-1' };
       prisma.trope.findUnique.mockResolvedValue(trope);
 
@@ -97,7 +97,7 @@ describe('TropeService', () => {
   });
 
   describe('createTrope', () => {
-    it('creates a trope from the dto', async () => {
+    it('dto로 트로프 생성', async () => {
       const created = { id: 'trope-1', name: 'Chosen One' };
       prisma.trope.create.mockResolvedValue(created);
 
@@ -114,13 +114,13 @@ describe('TropeService', () => {
       });
     });
 
-    it('maps a unique constraint violation to ConflictException', async () => {
+    it('유니크 제약 위반이면 ConflictException', async () => {
       prisma.trope.create.mockRejectedValue(prismaKnownError('P2002'));
 
       await expect(service.createTrope({ name: 'Dup' })).rejects.toThrow(ConflictException);
     });
 
-    it('maps a missing foreign key to BadRequestException', async () => {
+    it('외래키 누락이면 BadRequestException', async () => {
       prisma.trope.create.mockRejectedValue(prismaKnownError('P2003'));
 
       await expect(service.createTrope({ name: 'Orphan', parentId: 'missing' })).rejects.toThrow(
@@ -128,7 +128,7 @@ describe('TropeService', () => {
       );
     });
 
-    it('rethrows unrelated errors', async () => {
+    it('무관한 에러는 그대로 던짐', async () => {
       const error = new Error('boom');
       prisma.trope.create.mockRejectedValue(error);
 
@@ -137,13 +137,13 @@ describe('TropeService', () => {
   });
 
   describe('toggleLike', () => {
-    it('throws when the trope does not exist', async () => {
+    it('트로프가 없으면 예외', async () => {
       prisma.trope.findUnique.mockResolvedValue(null);
 
       await expect(service.toggleLike('missing', 'user-1')).rejects.toThrow(NotFoundException);
     });
 
-    it('removes an existing like and decrements the score', async () => {
+    it('기존 좋아요 삭제, 점수 감소', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       prisma.tropeLike.deleteMany.mockResolvedValue({ count: 1 });
       prisma.trope.update.mockResolvedValue({ likeScore: 3 });
@@ -160,7 +160,7 @@ describe('TropeService', () => {
       });
     });
 
-    it('creates a like and increments the score when none exists', async () => {
+    it('좋아요 없으면 생성, 점수 증가', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       prisma.tropeLike.deleteMany.mockResolvedValue({ count: 0 });
       prisma.tropeLike.create.mockResolvedValue({});
@@ -174,7 +174,7 @@ describe('TropeService', () => {
       });
     });
 
-    it('treats a concurrent duplicate like as already liked', async () => {
+    it('동시 중복 좋아요는 이미 좋아요한 것으로 처리', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       prisma.tropeLike.deleteMany.mockResolvedValue({ count: 0 });
       prisma.tropeLike.create.mockRejectedValue(prismaKnownError('P2002'));
@@ -188,13 +188,13 @@ describe('TropeService', () => {
   });
 
   describe('children', () => {
-    it('throws when the parent trope does not exist', async () => {
+    it('부모 트로프가 없으면 예외', async () => {
       prisma.trope.findUnique.mockResolvedValue(null);
 
       await expect(service.children('missing')).rejects.toThrow(NotFoundException);
     });
 
-    it('returns direct children ordered by name', async () => {
+    it('하위 트로프를 이름순으로 반환', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
       const children = [{ id: 'child-1' }];
       prisma.trope.findMany.mockResolvedValue(children);
@@ -211,19 +211,19 @@ describe('TropeService', () => {
   });
 
   describe('setParent', () => {
-    it('throws when the trope does not exist', async () => {
+    it('트로프가 없으면 예외', async () => {
       prisma.trope.findUnique.mockResolvedValue(null);
 
       await expect(service.setParent('missing', 'parent-1')).rejects.toThrow(NotFoundException);
     });
 
-    it('throws when assigning itself as parent', async () => {
+    it('자기 자신을 부모로 지정하면 예외', async () => {
       prisma.trope.findUnique.mockResolvedValue({ id: 'trope-1' });
 
       await expect(service.setParent('trope-1', 'trope-1')).rejects.toThrow(BadRequestException);
     });
 
-    it('throws when the parent does not exist', async () => {
+    it('부모 트로프가 없으면 예외', async () => {
       prisma.trope.findUnique.mockResolvedValueOnce({ id: 'trope-1' }).mockResolvedValueOnce(null);
 
       await expect(service.setParent('trope-1', 'missing-parent')).rejects.toThrow(
@@ -231,17 +231,17 @@ describe('TropeService', () => {
       );
     });
 
-    it('throws when the new parent chain would create a cycle', async () => {
-      // trope-1 -> setParent to trope-3, but trope-3's ancestry already leads back to trope-1
+    it('새 부모 체인이 순환을 만들면 예외', async () => {
+      // trope-1을 trope-3의 자식으로 설정하려 하지만, trope-3의 조상 체인이 이미 trope-1로 이어짐
       prisma.trope.findUnique
-        .mockResolvedValueOnce({ id: 'trope-1' }) // the trope itself
-        .mockResolvedValueOnce({ id: 'trope-3', parentId: 'trope-2' }) // parent candidate
-        .mockResolvedValueOnce({ id: 'trope-2', parentId: 'trope-1' }); // walk up the chain
+        .mockResolvedValueOnce({ id: 'trope-1' }) // 트로프 자신
+        .mockResolvedValueOnce({ id: 'trope-3', parentId: 'trope-2' }) // 부모 후보
+        .mockResolvedValueOnce({ id: 'trope-2', parentId: 'trope-1' }); // 체인을 따라 올라감
 
       await expect(service.setParent('trope-1', 'trope-3')).rejects.toThrow(BadRequestException);
     });
 
-    it('updates the parent when no cycle is found', async () => {
+    it('순환이 없으면 부모 갱신', async () => {
       prisma.trope.findUnique
         .mockResolvedValueOnce({ id: 'trope-1' })
         .mockResolvedValueOnce({ id: 'trope-2', parentId: null });
@@ -258,7 +258,7 @@ describe('TropeService', () => {
       });
     });
 
-    it('clears the parent when parentId is null', async () => {
+    it('parentId가 null이면 부모 해제', async () => {
       prisma.trope.findUnique.mockResolvedValueOnce({ id: 'trope-1', parentId: 'trope-2' });
       const updated = { id: 'trope-1', parentId: null };
       prisma.trope.update.mockResolvedValue(updated);

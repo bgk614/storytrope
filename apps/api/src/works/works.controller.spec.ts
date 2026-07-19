@@ -26,7 +26,7 @@ describe('WorkController', () => {
   });
 
   describe('findAll', () => {
-    it('defaults take to 20 and leaves skip undefined when not provided', async () => {
+    it('기본값: take 20, skip undefined', async () => {
       workService.works.mockResolvedValue([]);
 
       await controller.findAll({});
@@ -34,7 +34,7 @@ describe('WorkController', () => {
       expect(workService.works).toHaveBeenCalledWith({ skip: undefined, take: 20 });
     });
 
-    it('passes through validated skip/take query params', async () => {
+    it('skip/take 쿼리 그대로 전달', async () => {
       workService.works.mockResolvedValue([]);
 
       await controller.findAll({ skip: 5, take: 15 });
@@ -44,13 +44,13 @@ describe('WorkController', () => {
   });
 
   describe('findOne', () => {
-    it('throws NotFoundException when the work does not exist', async () => {
+    it('작품이 없으면 NotFoundException', async () => {
       workService.work.mockResolvedValue(null);
 
       await expect(controller.findOne('missing')).rejects.toThrow(NotFoundException);
     });
 
-    it('returns the work when found', async () => {
+    it('찾으면 작품 반환', async () => {
       const work = { id: 'work-1' };
       workService.work.mockResolvedValue(work);
 
