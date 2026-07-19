@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: SSH into VPS and deploy
         uses: appleboy/ssh-action@v1.2.0
