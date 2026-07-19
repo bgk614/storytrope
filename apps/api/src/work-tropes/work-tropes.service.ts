@@ -44,6 +44,39 @@ export class WorkTropesService {
     return workTropes.map((wt) => wt.work);
   }
 
+  async listAll(parameters: {
+    skip?: number;
+    take?: number;
+    source?: WorkTropeSource;
+    workId?: string;
+  }) {
+    const { skip, take, source, workId } = parameters;
+    return this.prisma.workTrope.findMany({
+      where: { source, workId },
+      include: {
+        work: { select: { id: true, title: true } },
+        trope: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take,
+    });
+  }
+
+  async unlink(workId: string, tropeId: string): Promise<void> {
+    const workTrope = await this.prisma.workTrope.findUnique({
+      where: { workId_tropeId: { workId, tropeId } },
+    });
+    if (!workTrope) {
+      throw new NotFoundException(`Trope ${tropeId} is not linked to work ${workId}`);
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.workTropeVote.deleteMany({ where: { workId, tropeId } }),
+      this.prisma.workTrope.delete({ where: { workId_tropeId: { workId, tropeId } } }),
+    ]);
+  }
+
   async linkTropeToWork(workId: string, tropeId: string, userId: string) {
     const [work, trope] = await Promise.all([
       this.prisma.work.findUnique({ where: { id: workId } }),

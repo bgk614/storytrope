@@ -4,12 +4,18 @@ import { AddTropeToBookForm } from "@/components/add-trope-to-book-form";
 import { VoteButtons } from "@/components/vote-buttons";
 import { ApiError, getBook, getBookTropes } from "@/lib/api";
 
+const PAGE_SIZE = 20;
+
 export default async function BookDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ skip?: string }>;
 }) {
   const { id } = await params;
+  const { skip: skipParam } = await searchParams;
+  const skip = Number(skipParam ?? 0) || 0;
 
   let book;
   try {
@@ -21,7 +27,11 @@ export default async function BookDetailPage({
     throw err;
   }
 
-  const tropes = await getBookTropes(id);
+  const tropes = await getBookTropes(id, { skip, take: PAGE_SIZE });
+  const prevSkip = Math.max(skip - PAGE_SIZE, 0);
+  const nextSkip = skip + PAGE_SIZE;
+  const hasPrev = skip > 0;
+  const hasNext = tropes.length === PAGE_SIZE;
   const authorNames = book.authors
     ?.map((wa) => wa.author?.name)
     .filter(Boolean)
@@ -60,6 +70,28 @@ export default async function BookDetailPage({
               </li>
             ))}
           </ul>
+        )}
+        {(hasPrev || hasNext) && (
+          <div className="flex justify-between text-sm">
+            {hasPrev ? (
+              <Link
+                href={`/books/${id}?skip=${prevSkip}`}
+                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              >
+                Previous
+              </Link>
+            ) : (
+              <span />
+            )}
+            {hasNext && (
+              <Link
+                href={`/books/${id}?skip=${nextSkip}`}
+                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              >
+                Next
+              </Link>
+            )}
+          </div>
         )}
         <AddTropeToBookForm bookId={book.id} />
       </section>

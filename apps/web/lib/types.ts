@@ -60,3 +60,23 @@ export interface ApiUser {
   createdAt: string;
   updatedAt: string;
 }
+
+export type Role = "USER" | "ADMIN";
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  nickname: string;
+  role: Role;
+}
+
+export interface AdminWorkTropeLink {
+  workId: string;
+  tropeId: string;
+  source: WorkTropeSource;
+  voteScore: number;
+  createdAt: string;
+  createdByUserId: string | null;
+  work: { id: string; title: string };
+  trope: { id: string; name: string };
+}

@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { AdminGuard } from '../auth/admin.guard';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/decorator/current-user.decorator';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
@@ -23,5 +35,12 @@ export class WorkTropesController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workTropesService.linkTropeToWork(id, dto.tropeId, user.userId);
+  }
+
+  @UseGuards(SessionAuthGuard, AdminGuard)
+  @Delete(':workId/tropes/:tropeId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeTrope(@Param('workId') workId: string, @Param('tropeId') tropeId: string) {
+    await this.workTropesService.unlink(workId, tropeId);
   }
 }

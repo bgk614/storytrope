@@ -22,8 +22,14 @@ describe('WorkTropesService', () => {
       findUniqueOrThrow: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      delete: jest.Mock;
     };
-    workTropeVote: { findUnique: jest.Mock; create: jest.Mock; updateMany: jest.Mock };
+    workTropeVote: {
+      findUnique: jest.Mock;
+      create: jest.Mock;
+      updateMany: jest.Mock;
+      deleteMany: jest.Mock;
+    };
     $transaction: jest.Mock;
   };
 
@@ -37,11 +43,13 @@ describe('WorkTropesService', () => {
         findUniqueOrThrow: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        delete: jest.fn(),
       },
       workTropeVote: {
         findUnique: jest.fn(),
         create: jest.fn(),
         updateMany: jest.fn(),
+        deleteMany: jest.fn(),
       },
       $transaction: jest.fn(),
     };
@@ -256,6 +264,50 @@ describe('WorkTropesService', () => {
 
       expect(result).toEqual({ voteScore: -1 });
       expect(prisma.workTrope.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('listAll', () => {
+    it('필터/페이지네이션 전달, createdAt desc 정렬', async () => {
+      const links = [{ workId: 'work-1', tropeId: 'trope-1' }];
+      prisma.workTrope.findMany.mockResolvedValue(links);
+
+      const result = await service.listAll({ skip: 5, take: 10, source: 'USER' });
+
+      expect(result).toBe(links);
+      expect(prisma.workTrope.findMany).toHaveBeenCalledWith({
+        where: { source: 'USER', workId: undefined },
+        include: {
+          work: { select: { id: true, title: true } },
+          trope: { select: { id: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: 5,
+        take: 10,
+      });
+    });
+  });
+
+  describe('unlink', () => {
+    it('연결이 없으면 예외', async () => {
+      prisma.workTrope.findUnique.mockResolvedValue(null);
+
+      await expect(service.unlink('work-1', 'trope-1')).rejects.toThrow(NotFoundException);
+    });
+
+    it('투표 삭제 후 연결 삭제', async () => {
+      prisma.workTrope.findUnique.mockResolvedValue({ workId: 'work-1', tropeId: 'trope-1' });
+      prisma.workTropeVote.deleteMany.mockResolvedValue({ count: 2 });
+      prisma.workTrope.delete.mockResolvedValue({});
+
+      await service.unlink('work-1', 'trope-1');
+
+      expect(prisma.workTropeVote.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1', tropeId: 'trope-1' },
+      });
+      expect(prisma.workTrope.delete).toHaveBeenCalledWith({
+        where: { workId_tropeId: { workId: 'work-1', tropeId: 'trope-1' } },
+      });
     });
   });
 });

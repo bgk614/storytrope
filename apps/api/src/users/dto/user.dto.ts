@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
-import type { User } from '../../../generated/prisma/client.js';
+import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
+import { Role, type User } from '../../../generated/prisma/client.js';
 
 export class UserDto {
   readonly id: string;
@@ -10,11 +10,13 @@ export class UserDto {
   @IsNotEmpty()
   readonly nickname: string;
 
-  //TODO role 추가하기
+  @IsEnum(Role)
+  readonly role: Role;
 
-  constructor(user: Pick<User, 'id' | 'email' | 'nickname'>) {
+  constructor(user: Pick<User, 'id' | 'email' | 'nickname' | 'role'>) {
     this.id = user.id;
     this.email = user.email;
     this.nickname = user.nickname;
+    this.role = user.role;
   }
 }

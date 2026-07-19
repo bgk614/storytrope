@@ -39,9 +39,23 @@ export class UsersService {
       where,
     });
   }
+  // 세션/투표/좋아요 등 연관 레코드를 먼저 정리해야 FK 제약에 걸리지 않고 삭제할 수 있음
+  // 사용자가 만든 WorkTrope 링크 자체는 유효한 콘텐츠이므로 삭제하지 않고 작성자만 null 처리
   async delete(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user.delete({
-      where,
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUniqueOrThrow({ where });
+
+      await tx.session.deleteMany({ where: { userId: user.id } });
+      await tx.workTropeVote.deleteMany({ where: { userId: user.id } });
+      await tx.tropeLike.deleteMany({ where: { userId: user.id } });
+      await tx.workLike.deleteMany({ where: { userId: user.id } });
+      await tx.userBook.deleteMany({ where: { userId: user.id } });
+      await tx.workTrope.updateMany({
+        where: { createdByUserId: user.id },
+        data: { createdByUserId: null },
+      });
+
+      return tx.user.delete({ where: { id: user.id } });
     });
   }
 }

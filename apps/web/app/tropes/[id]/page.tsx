@@ -6,12 +6,19 @@ import { LikeButton } from "@/components/like-button";
 import { TropeCard } from "@/components/trope-card";
 import { ApiError, getTrope, getTropeBooks, getTropeChildren } from "@/lib/api";
 
+const PAGE_SIZE = 20;
+
 export default async function TropeDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ childrenSkip?: string; booksSkip?: string }>;
 }) {
   const { id } = await params;
+  const { childrenSkip: childrenSkipParam, booksSkip: booksSkipParam } = await searchParams;
+  const childrenSkip = Number(childrenSkipParam ?? 0) || 0;
+  const booksSkip = Number(booksSkipParam ?? 0) || 0;
 
   let trope;
   try {
@@ -23,7 +30,20 @@ export default async function TropeDetailPage({
     throw err;
   }
 
-  const [children, books] = await Promise.all([getTropeChildren(id), getTropeBooks(id)]);
+  const [children, books] = await Promise.all([
+    getTropeChildren(id, { skip: childrenSkip, take: PAGE_SIZE }),
+    getTropeBooks(id, { skip: booksSkip, take: PAGE_SIZE }),
+  ]);
+
+  const childrenPrevSkip = Math.max(childrenSkip - PAGE_SIZE, 0);
+  const childrenNextSkip = childrenSkip + PAGE_SIZE;
+  const childrenHasPrev = childrenSkip > 0;
+  const childrenHasNext = children.length === PAGE_SIZE;
+
+  const booksPrevSkip = Math.max(booksSkip - PAGE_SIZE, 0);
+  const booksNextSkip = booksSkip + PAGE_SIZE;
+  const booksHasPrev = booksSkip > 0;
+  const booksHasNext = books.length === PAGE_SIZE;
 
   return (
     <div className="flex flex-col gap-10">
@@ -56,6 +76,28 @@ export default async function TropeDetailPage({
             ))}
           </div>
         )}
+        {(childrenHasPrev || childrenHasNext) && (
+          <div className="flex justify-between text-sm">
+            {childrenHasPrev ? (
+              <Link
+                href={`/tropes/${id}?childrenSkip=${childrenPrevSkip}&booksSkip=${booksSkip}`}
+                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              >
+                Previous
+              </Link>
+            ) : (
+              <span />
+            )}
+            {childrenHasNext && (
+              <Link
+                href={`/tropes/${id}?childrenSkip=${childrenNextSkip}&booksSkip=${booksSkip}`}
+                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              >
+                Next
+              </Link>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="flex flex-col gap-3">
@@ -69,6 +111,28 @@ export default async function TropeDetailPage({
             {books.map((book) => (
               <BookCard key={book.id} work={book} />
             ))}
+          </div>
+        )}
+        {(booksHasPrev || booksHasNext) && (
+          <div className="flex justify-between text-sm">
+            {booksHasPrev ? (
+              <Link
+                href={`/tropes/${id}?childrenSkip=${childrenSkip}&booksSkip=${booksPrevSkip}`}
+                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              >
+                Previous
+              </Link>
+            ) : (
+              <span />
+            )}
+            {booksHasNext && (
+              <Link
+                href={`/tropes/${id}?childrenSkip=${childrenSkip}&booksSkip=${booksNextSkip}`}
+                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              >
+                Next
+              </Link>
+            )}
           </div>
         )}
         <AddBookToTropeForm tropeId={trope.id} />

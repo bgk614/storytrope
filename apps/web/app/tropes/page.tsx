@@ -3,14 +3,23 @@ import { CreateTropeForm } from "@/components/create-trope-form";
 import { TropeCard } from "@/components/trope-card";
 import { getTropes } from "@/lib/api";
 
+const PAGE_SIZE = 20;
+
 export default async function TropesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ topLevelOnly?: string }>;
+  searchParams: Promise<{ topLevelOnly?: string; skip?: string }>;
 }) {
-  const { topLevelOnly } = await searchParams;
+  const { topLevelOnly, skip: skipParam } = await searchParams;
   const showTopLevelOnly = topLevelOnly === "true";
-  const tropes = await getTropes(showTopLevelOnly);
+  const skip = Number(skipParam ?? 0) || 0;
+  const tropes = await getTropes(showTopLevelOnly, { skip, take: PAGE_SIZE });
+
+  const prevSkip = Math.max(skip - PAGE_SIZE, 0);
+  const nextSkip = skip + PAGE_SIZE;
+  const hasPrev = skip > 0;
+  const hasNext = tropes.length === PAGE_SIZE;
+  const filterQs = showTopLevelOnly ? "topLevelOnly=true&" : "";
 
   return (
     <div className="flex flex-col gap-6">
@@ -56,6 +65,27 @@ export default async function TropesPage({
           ))}
         </div>
       )}
+
+      <div className="flex justify-between text-sm">
+        {hasPrev ? (
+          <Link
+            href={`/tropes?${filterQs}skip=${prevSkip}`}
+            className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+          >
+            Previous
+          </Link>
+        ) : (
+          <span />
+        )}
+        {hasNext && (
+          <Link
+            href={`/tropes?${filterQs}skip=${nextSkip}`}
+            className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+          >
+            Next
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
