@@ -3,7 +3,11 @@
   "js/ts.tsdk.path": "apps/api/node_modules/typescript/lib",
   "rest-client.environmentVariables": {
     "$shared": {
-      "baseUrl": "http://localhost:4000"
+      "baseUrl": "http://localhost:4000",
+      "tropeId": "",
+      "parentTropeId": "",
+      "workId": "",
+      "userId": ""
     }
   }
 }

@@ -24,3 +24,6 @@ Content-Type: application/json
 {
   "tropeId": "{{tropeId}}"
 }
+
+### 작품-트로프 연결 삭제 (관리자 전용)
+DELETE {{baseUrl}}/works/{{workId}}/tropes/{{tropeId}}

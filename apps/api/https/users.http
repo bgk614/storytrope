@@ -1,0 +1,15 @@
+# REST Client
+# .vscode/settings.json 파일 내에 baseUrl 설정 -> cmd + alt + e 환경 선택
+# 로그인이 필요한 요청은 먼저 auth.http 의 로그인을 실행해 세션 쿠키 받기
+
+### 내 정보 조회 (로그인 필요)
+GET {{baseUrl}}/users/me
+
+### 사용자 목록 조회 (관리자 전용)
+GET {{baseUrl}}/users?skip=0&take=20
+
+### 사용자 단건 조회 (공개)
+GET {{baseUrl}}/users/{{userId}}
+
+### 사용자 삭제 (관리자 전용)
+DELETE {{baseUrl}}/users/{{userId}}
