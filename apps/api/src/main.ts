@@ -17,7 +17,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // 리버스 프록시(nginx/로드밸런서) 뒤에서는 X-Forwarded-For 기준으로 클라이언트 IP를
-  // 식별해야 rate limit이 사용자별로 걸린다. 프록시 없이 직접 노출될 때(기본값 0)는
+  // 식별해야 rate limit이 사용자별로 걸림. 프록시 없이 직접 노출될 때(기본값 0)는
   // 헤더 위조로 제한을 우회할 수 있으므로 꺼둠
   const trustProxyHops = configService.get<number>('TRUST_PROXY_HOPS') ?? 0;
   if (trustProxyHops > 0) {
