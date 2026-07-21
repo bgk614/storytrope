@@ -1,2 +1,5 @@
 /node_modules
 .DS_Store
+
+# Open Library dump 원본 및 추출 산출물
+scripts/duckdb/data/

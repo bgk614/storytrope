@@ -209,4 +209,38 @@ pnpm start                          # 기본 3000 포트
 
 ## 데이터 출처
 
-책 데이터는 Open Library dump 파일에서 가져온다
+책 데이터는 [Open Library dump](https://openlibrary.org/developers/dumps)(works/authors)에서 가져온다. 추출용 DuckDB 스크립트는 `scripts/duckdb/`에 이 저장소로 버전관리한다. dump 원본(수 GB)과 추출 산출물(CSV)은 용량 때문에 같은 디렉터리 하위(`scripts/duckdb/data/`, gitignore 대상)에 로컬로만 둔다.
+
+**추출 (로컬)** — DuckDB로 dump를 파싱해 표지+설명이 있는 work만 추린 뒤 `Work`/`Author`/`Subject`/`WorkAuthor`/`WorkSubject` 형태의 CSV로 만든다. Open Library 원본 키(`olKey`)를 자연키로 남겨서, 나중에 dump가 갱신돼도 같은 row를 매칭해 재적재할 수 있게 한다. [DuckDB CLI](https://duckdb.org/docs/installation/) 설치가 필요하다.
+
+```bash
+# scripts/duckdb/data/ 아래에 dump 원본 배치: ol_dump_works_*.txt.gz, ol_dump_authors_*.txt.gz
+cd scripts/duckdb
+duckdb -c ".read extract.sql"
+# scripts/duckdb/data/out/ 에 work/author/subject/work_author/work_subject.csv 5종 생성
+```
+
+**적재 (서버)** — 운영 DB는 Docker Compose 네트워크 안쪽에만 열려 있고 호스트 포트를 노출하지 않으므로, CSV를 `db` 컨테이너 안으로 복사해 컨테이너 내부에서 `psql`로 적재한다. UNLOGGED staging 테이블에 `\copy`로 밀어넣은 뒤 `INSERT ... ON CONFLICT`로 본 테이블에 합치는 방식이라, 같은 CSV로 다시 실행해도 중복 없이 안전하다.
+
+```bash
+# 1) 로컬: 추출된 CSV(out/)를 서버로 전송
+rsync -avz --progress out/ deploy@api.storytrope.com:~/storytrope-import/
+
+# 2) 서버: 실행 중인 db 컨테이너 안으로 복사
+cd /home/deploy/storytrope/apps/api
+docker compose cp ~/storytrope-import db:/tmp/import
+
+# 3) 서버: 컨테이너 내부에서 적재 (staging → INSERT ON CONFLICT, 트랜잭션 1개)
+docker compose exec -T --workdir /tmp/import db \
+  psql -U storytrope -d storytrope -v ON_ERROR_STOP=1 -f load.sql
+
+# 4) 정리
+docker compose exec db rm -rf /tmp/import
+rm -rf ~/storytrope-import
+```
+
+**TODO**
+— 지금은 로컬에서 추출한 CSV를 사람이 직접 서버로 옮겨 적재하는 수동 절차.
+
+- 이후 관리자 페이지에서 dump/CSV를 업로드하면 위 적재 로직을 서버가 대신 실행하는 기능이나
+  Open Library dump 갱신 주기에 맞춰 추출부터 적재까지 자동으로 도는 배치(스케줄러)로 개선해야한다.
