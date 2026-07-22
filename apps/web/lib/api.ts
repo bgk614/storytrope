@@ -112,7 +112,7 @@ export function logout() {
 }
 
 export function signup(email: string, password: string, nickname: string) {
-  return clientRequest<ApiUser>(`/user`, {
+  return clientRequest<ApiUser>(`/auth/signup`, {
     method: "POST",
     body: JSON.stringify({ email, password, nickname }),
   });
