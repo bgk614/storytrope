@@ -5,5 +5,6 @@ export default {
   ],
   'apps/web/**/*.{ts,tsx}': (files) => [
     `pnpm --dir apps/web exec eslint --fix ${files.join(' ')}`,
+    `pnpm --dir apps/web exec prettier --write ${files.join(' ')}`,
   ],
 };
