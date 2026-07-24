@@ -31,8 +31,8 @@ export interface Work {
   updatedAt: string;
 }
 
-export type WorkTropeSource = "AI" | "USER" | "ADMIN";
-export type VoteType = "UP" | "DOWN";
+export type WorkTropeSource = 'AI' | 'USER' | 'ADMIN';
+export type VoteType = 'UP' | 'DOWN';
 
 export interface WorkTrope {
   workId: string;
@@ -51,7 +51,7 @@ export interface RankingEntry {
   score: number;
 }
 
-export type RankingPeriod = "weekly" | "monthly" | "yearly";
+export type RankingPeriod = 'weekly' | 'monthly' | 'yearly';
 
 export interface ApiUser {
   id: string;
@@ -61,7 +61,7 @@ export interface ApiUser {
   updatedAt: string;
 }
 
-export type Role = "USER" | "ADMIN";
+export type Role = 'USER' | 'ADMIN';
 
 export interface AdminUser {
   id: string;

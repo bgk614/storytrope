@@ -17,7 +17,11 @@ describe('TropesController', () => {
     setParent: jest.Mock;
     toggleLike: jest.Mock;
   };
-  let workTropeService: { worksOfTrope: jest.Mock; linkTropeToWork: jest.Mock; vote: jest.Mock };
+  let workTropeService: {
+    worksOfTrope: jest.Mock;
+    linkTropeToWork: jest.Mock;
+    vote: jest.Mock;
+  };
   const user: AuthenticatedUser = { userId: 'user-1', sessionId: 'session-1' };
 
   beforeEach(async () => {
@@ -61,7 +65,9 @@ describe('TropesController', () => {
       const result = await controller.create({ name: 'Chosen One' });
 
       expect(result).toBe(created);
-      expect(tropeService.createTrope).toHaveBeenCalledWith({ name: 'Chosen One' });
+      expect(tropeService.createTrope).toHaveBeenCalledWith({
+        name: 'Chosen One',
+      });
     });
   });
 
@@ -155,7 +161,9 @@ describe('TropesController', () => {
       const updated = { id: 'trope-1', parentId: 'trope-2' };
       tropeService.setParent.mockResolvedValue(updated);
 
-      const result = await controller.setParent('trope-1', { parentId: 'trope-2' });
+      const result = await controller.setParent('trope-1', {
+        parentId: 'trope-2',
+      });
 
       expect(result).toBe(updated);
       expect(tropeService.setParent).toHaveBeenCalledWith('trope-1', 'trope-2');

@@ -73,7 +73,9 @@ export class WorkTropesService {
 
     await this.prisma.$transaction([
       this.prisma.workTropeVote.deleteMany({ where: { workId, tropeId } }),
-      this.prisma.workTrope.delete({ where: { workId_tropeId: { workId, tropeId } } }),
+      this.prisma.workTrope.delete({
+        where: { workId_tropeId: { workId, tropeId } },
+      }),
     ]);
   }
 

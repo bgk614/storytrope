@@ -139,7 +139,12 @@ describe('WorkTropesService', () => {
 
       expect(result).toBe(created);
       expect(prisma.workTrope.create).toHaveBeenCalledWith({
-        data: { workId: 'work-1', tropeId: 'trope-1', source: 'USER', createdByUserId: 'user-1' },
+        data: {
+          workId: 'work-1',
+          tropeId: 'trope-1',
+          source: 'USER',
+          createdByUserId: 'user-1',
+        },
         include: { trope: { omit: { description: true } }, work: true },
       });
     });
@@ -183,7 +188,12 @@ describe('WorkTropesService', () => {
 
       expect(result).toEqual({ voteScore: 1 });
       expect(prisma.workTropeVote.create).toHaveBeenCalledWith({
-        data: { userId: 'user-1', workId: 'work-1', tropeId: 'trope-1', voteType: VoteType.UP },
+        data: {
+          userId: 'user-1',
+          workId: 'work-1',
+          tropeId: 'trope-1',
+          voteType: VoteType.UP,
+        },
       });
       expect(prisma.workTrope.update).toHaveBeenCalledWith({
         where: { workId_tropeId: { workId: 'work-1', tropeId: 'trope-1' } },
@@ -208,7 +218,9 @@ describe('WorkTropesService', () => {
 
     it('같은 투표 재요청 시 쓰기 없이 현재 점수 반환', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 5 });
-      prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
+      prisma.workTropeVote.findUnique.mockResolvedValue({
+        voteType: VoteType.UP,
+      });
       prisma.workTrope.findUniqueOrThrow.mockResolvedValue({ voteScore: 5 });
 
       const result = await service.vote('work-1', 'trope-1', 'user-1', VoteType.UP);
@@ -219,7 +231,9 @@ describe('WorkTropesService', () => {
 
     it('투표 뒤집으면 델타를 두 배로 적용', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
-      prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
+      prisma.workTropeVote.findUnique.mockResolvedValue({
+        voteType: VoteType.UP,
+      });
       prisma.workTropeVote.updateMany.mockResolvedValue({ count: 1 });
       prisma.workTrope.update.mockResolvedValue({ voteScore: -1 });
 
@@ -227,7 +241,12 @@ describe('WorkTropesService', () => {
 
       expect(result).toEqual({ voteScore: -1 });
       expect(prisma.workTropeVote.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'user-1', workId: 'work-1', tropeId: 'trope-1', voteType: VoteType.UP },
+        where: {
+          userId: 'user-1',
+          workId: 'work-1',
+          tropeId: 'trope-1',
+          voteType: VoteType.UP,
+        },
         data: { voteType: VoteType.DOWN },
       });
       expect(prisma.workTrope.update).toHaveBeenCalledWith({
@@ -249,14 +268,21 @@ describe('WorkTropesService', () => {
 
       expect(result).toEqual({ voteScore: -1 });
       expect(prisma.workTropeVote.updateMany).toHaveBeenCalledWith({
-        where: { userId: 'user-1', workId: 'work-1', tropeId: 'trope-1', voteType: VoteType.UP },
+        where: {
+          userId: 'user-1',
+          workId: 'work-1',
+          tropeId: 'trope-1',
+          voteType: VoteType.UP,
+        },
         data: { voteType: VoteType.DOWN },
       });
     });
 
     it('동시 뒤집기가 이미 있었으면 델타 중복 적용 안 함', async () => {
       prisma.workTrope.findUnique.mockResolvedValue({ voteScore: 1 });
-      prisma.workTropeVote.findUnique.mockResolvedValue({ voteType: VoteType.UP });
+      prisma.workTropeVote.findUnique.mockResolvedValue({
+        voteType: VoteType.UP,
+      });
       prisma.workTropeVote.updateMany.mockResolvedValue({ count: 0 });
       prisma.workTrope.findUniqueOrThrow.mockResolvedValue({ voteScore: -1 });
 
@@ -272,7 +298,11 @@ describe('WorkTropesService', () => {
       const links = [{ workId: 'work-1', tropeId: 'trope-1' }];
       prisma.workTrope.findMany.mockResolvedValue(links);
 
-      const result = await service.listAll({ skip: 5, take: 10, source: 'USER' });
+      const result = await service.listAll({
+        skip: 5,
+        take: 10,
+        source: 'USER',
+      });
 
       expect(result).toBe(links);
       expect(prisma.workTrope.findMany).toHaveBeenCalledWith({
@@ -296,7 +326,10 @@ describe('WorkTropesService', () => {
     });
 
     it('투표 삭제 후 연결 삭제', async () => {
-      prisma.workTrope.findUnique.mockResolvedValue({ workId: 'work-1', tropeId: 'trope-1' });
+      prisma.workTrope.findUnique.mockResolvedValue({
+        workId: 'work-1',
+        tropeId: 'trope-1',
+      });
       prisma.workTropeVote.deleteMany.mockResolvedValue({ count: 2 });
       prisma.workTrope.delete.mockResolvedValue({});
 

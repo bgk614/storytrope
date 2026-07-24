@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { AddBookToTropeForm } from "@/components/add-book-to-trope-form";
-import { BookCard } from "@/components/book-card";
-import { LikeButton } from "@/components/like-button";
-import { TropeCard } from "@/components/trope-card";
-import { ApiError, getTrope, getTropeBooks, getTropeChildren } from "@/lib/api";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { AddBookToTropeForm } from '@/components/add-book-to-trope-form';
+import { BookCard } from '@/components/book-card';
+import { LikeButton } from '@/components/like-button';
+import { TropeCard } from '@/components/trope-card';
+import { ApiError, getTrope, getTropeBooks, getTropeChildren } from '@/lib/api';
 
 const PAGE_SIZE = 20;
 
@@ -46,42 +46,42 @@ export default async function TropeDetailPage({
   const booksHasNext = books.length === PAGE_SIZE;
 
   return (
-    <div className="flex flex-col gap-10">
-      <section className="flex flex-col gap-3">
+    <div className='flex flex-col gap-10'>
+      <section className='flex flex-col gap-3'>
         {trope.parentId && (
           <Link
             href={`/tropes/${trope.parentId}`}
-            className="w-fit text-sm text-black/50 hover:underline dark:text-white/50"
+            className='w-fit text-sm text-black/50 hover:underline dark:text-white/50'
           >
             ← Back to parent trope
           </Link>
         )}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <h1 className="text-2xl font-semibold">{trope.name}</h1>
+        <div className='flex flex-wrap items-start justify-between gap-4'>
+          <h1 className='text-2xl font-semibold'>{trope.name}</h1>
           <LikeButton tropeId={trope.id} initialScore={trope.likeScore} />
         </div>
         {trope.description && (
-          <p className="text-black/70 dark:text-white/70">{trope.description}</p>
+          <p className='text-black/70 dark:text-white/70'>{trope.description}</p>
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-medium">Sub-tropes</h2>
+      <section className='flex flex-col gap-3'>
+        <h2 className='text-lg font-medium'>Sub-tropes</h2>
         {children.length === 0 ? (
-          <p className="text-sm text-black/50 dark:text-white/50">No sub-tropes yet.</p>
+          <p className='text-sm text-black/50 dark:text-white/50'>No sub-tropes yet.</p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
             {children.map((child) => (
               <TropeCard key={child.id} trope={child} />
             ))}
           </div>
         )}
         {(childrenHasPrev || childrenHasNext) && (
-          <div className="flex justify-between text-sm">
+          <div className='flex justify-between text-sm'>
             {childrenHasPrev ? (
               <Link
                 href={`/tropes/${id}?childrenSkip=${childrenPrevSkip}&booksSkip=${booksSkip}`}
-                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+                className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
               >
                 Previous
               </Link>
@@ -91,7 +91,7 @@ export default async function TropeDetailPage({
             {childrenHasNext && (
               <Link
                 href={`/tropes/${id}?childrenSkip=${childrenNextSkip}&booksSkip=${booksSkip}`}
-                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+                className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
               >
                 Next
               </Link>
@@ -100,25 +100,23 @@ export default async function TropeDetailPage({
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-medium">Books featuring this trope</h2>
+      <section className='flex flex-col gap-3'>
+        <h2 className='text-lg font-medium'>Books featuring this trope</h2>
         {books.length === 0 ? (
-          <p className="text-sm text-black/50 dark:text-white/50">
-            No books linked yet.
-          </p>
+          <p className='text-sm text-black/50 dark:text-white/50'>No books linked yet.</p>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
             {books.map((book) => (
               <BookCard key={book.id} work={book} />
             ))}
           </div>
         )}
         {(booksHasPrev || booksHasNext) && (
-          <div className="flex justify-between text-sm">
+          <div className='flex justify-between text-sm'>
             {booksHasPrev ? (
               <Link
                 href={`/tropes/${id}?childrenSkip=${childrenSkip}&booksSkip=${booksPrevSkip}`}
-                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+                className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
               >
                 Previous
               </Link>
@@ -128,7 +126,7 @@ export default async function TropeDetailPage({
             {booksHasNext && (
               <Link
                 href={`/tropes/${id}?childrenSkip=${childrenSkip}&booksSkip=${booksNextSkip}`}
-                className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+                className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
               >
                 Next
               </Link>

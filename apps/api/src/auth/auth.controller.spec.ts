@@ -52,7 +52,11 @@ describe('AuthController', () => {
       const result = await controller.signUp(dto);
 
       expect(authService.signUp).toHaveBeenCalledWith(dto);
-      expect(result).toEqual({ id: 'user-1', email: 'a@b.com', nickname: 'nick' });
+      expect(result).toEqual({
+        id: 'user-1',
+        email: 'a@b.com',
+        nickname: 'nick',
+      });
       expect(result).not.toHaveProperty('passwordHash');
     });
   });
@@ -62,7 +66,10 @@ describe('AuthController', () => {
       const user = { id: 'user-1' };
       const expiresAt = new Date(Date.now() + 1000);
       authService.validateUser.mockResolvedValue(user);
-      authService.login.mockResolvedValue({ sessionToken: 'token-1', expiresAt });
+      authService.login.mockResolvedValue({
+        sessionToken: 'token-1',
+        expiresAt,
+      });
 
       const result = await controller.login(
         { email: 'a@b.com', password: 'pw' },
@@ -74,7 +81,11 @@ describe('AuthController', () => {
       expect(response.cookie).toHaveBeenCalledWith(
         'session_id',
         'token-1',
-        expect.objectContaining({ httpOnly: true, path: '/', expires: expiresAt }),
+        expect.objectContaining({
+          httpOnly: true,
+          path: '/',
+          expires: expiresAt,
+        }),
       );
       expect(result).toEqual({ success: true });
     });
@@ -91,12 +102,17 @@ describe('AuthController', () => {
 
   describe('logout', () => {
     it('로그아웃', async () => {
-      const user: AuthenticatedUser = { userId: 'user-1', sessionId: 'session-1' };
+      const user: AuthenticatedUser = {
+        userId: 'user-1',
+        sessionId: 'session-1',
+      };
 
       const result = await controller.logout(user, response as unknown as Response);
 
       expect(authService.logout).toHaveBeenCalledWith('session-1');
-      expect(response.clearCookie).toHaveBeenCalledWith('session_id', { path: '/' });
+      expect(response.clearCookie).toHaveBeenCalledWith('session_id', {
+        path: '/',
+      });
       expect(result).toEqual({ success: true });
     });
   });

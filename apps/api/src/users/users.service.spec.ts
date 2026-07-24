@@ -61,7 +61,9 @@ describe('UsersService', () => {
       const result = await service.findById('user-1');
 
       expect(result).toBe(user);
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+      });
     });
 
     it('없으면 null', async () => {
@@ -121,16 +123,28 @@ describe('UsersService', () => {
       const result = await service.delete({ id: 'user-1' });
 
       expect(result).toBe(deleted);
-      expect(prisma.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
-      expect(prisma.workTropeVote.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
-      expect(prisma.tropeLike.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
-      expect(prisma.workLike.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
-      expect(prisma.userBook.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+      expect(prisma.session.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+      });
+      expect(prisma.workTropeVote.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+      });
+      expect(prisma.tropeLike.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+      });
+      expect(prisma.workLike.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+      });
+      expect(prisma.userBook.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+      });
       expect(prisma.workTrope.updateMany).toHaveBeenCalledWith({
         where: { createdByUserId: 'user-1' },
         data: { createdByUserId: null },
       });
-      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+      expect(prisma.user.delete).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+      });
     });
   });
 });

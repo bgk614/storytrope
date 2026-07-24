@@ -13,7 +13,10 @@ describe('UsersController', () => {
   let controller: UsersController;
   let userService: { findById: jest.Mock; list: jest.Mock; delete: jest.Mock };
 
-  const currentUser: AuthenticatedUser = { userId: 'user-1', sessionId: 'session-1' };
+  const currentUser: AuthenticatedUser = {
+    userId: 'user-1',
+    sessionId: 'session-1',
+  };
 
   beforeEach(async () => {
     userService = { findById: jest.fn(), list: jest.fn(), delete: jest.fn() };
@@ -41,14 +44,24 @@ describe('UsersController', () => {
 
   describe('getMe', () => {
     it('본인 프로필 조회 (이메일 포함)', async () => {
-      const user = { id: 'user-1', email: 'a@b.com', nickname: 'nick', role: 'USER' };
+      const user = {
+        id: 'user-1',
+        email: 'a@b.com',
+        nickname: 'nick',
+        role: 'USER',
+      };
       userService.findById.mockResolvedValue(user);
 
       const result = await controller.getMe(currentUser);
 
       expect(userService.findById).toHaveBeenCalledWith('user-1');
       expect(result).toBeInstanceOf(UserDto);
-      expect(result).toEqual({ id: 'user-1', email: 'a@b.com', nickname: 'nick', role: 'USER' });
+      expect(result).toEqual({
+        id: 'user-1',
+        email: 'a@b.com',
+        nickname: 'nick',
+        role: 'USER',
+      });
     });
 
     it('탈퇴한 사용자면 NotFound', async () => {
@@ -95,7 +108,10 @@ describe('UsersController', () => {
 
       await controller.findAll({});
 
-      expect(userService.list).toHaveBeenCalledWith({ skip: undefined, take: 50 });
+      expect(userService.list).toHaveBeenCalledWith({
+        skip: undefined,
+        take: 50,
+      });
     });
   });
 

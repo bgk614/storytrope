@@ -4,7 +4,9 @@ import { AuthService } from './auth.service';
 import { SessionAuthGuard, SESSION_COOKIE } from './session-auth.guard';
 
 function contextWithCookies(cookies?: Record<string, string>): ExecutionContext {
-  const request: { cookies?: Record<string, string>; user?: unknown } = { cookies };
+  const request: { cookies?: Record<string, string>; user?: unknown } = {
+    cookies,
+  };
   return {
     switchToHttp: () => ({
       getRequest: () => request,
@@ -39,7 +41,10 @@ describe('SessionAuthGuard', () => {
 
   it('세션이 유효하면 통과, request.user 채움', async () => {
     const context = contextWithCookies({ [SESSION_COOKIE]: 'raw-token' });
-    authService.getValidSession.mockResolvedValue({ id: 'session-1', userId: 'user-1' });
+    authService.getValidSession.mockResolvedValue({
+      id: 'session-1',
+      userId: 'user-1',
+    });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
 

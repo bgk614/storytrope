@@ -24,7 +24,10 @@ export class WorkTropesController {
 
   @Get(':id/tropes')
   async findTropes(@Param('id') id: string, @Query() query: PaginationQueryDto) {
-    return this.workTropesService.tropesOfWork(id, { skip: query.skip, take: query.take ?? 100 });
+    return this.workTropesService.tropesOfWork(id, {
+      skip: query.skip,
+      take: query.take ?? 100,
+    });
   }
 
   @UseGuards(SessionAuthGuard)

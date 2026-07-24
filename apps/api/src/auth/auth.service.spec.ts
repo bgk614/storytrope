@@ -75,7 +75,9 @@ describe('AuthService', () => {
       const result = await service.validateUser('a@b.com', 'correct');
 
       expect(result).toBe(user);
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: 'a@b.com' } });
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { email: 'a@b.com' },
+      });
       expect(bcrypt.compare).toHaveBeenCalledWith('correct', 'hash');
     });
   });
@@ -104,7 +106,9 @@ describe('AuthService', () => {
 
       const result = await service.login({ id: 'user-1' } as never);
 
-      const createArguments = prisma.session.create.mock.calls[0][0] as { data: { id: string } };
+      const createArguments = prisma.session.create.mock.calls[0][0] as {
+        data: { id: string };
+      };
       expect(createArguments.data.id).not.toBe(result.sessionToken);
       expect(createArguments.data.id).toBe(hashSessionToken(result.sessionToken));
     });
@@ -148,7 +152,9 @@ describe('AuthService', () => {
 
       await service.logout('session-1');
 
-      expect(prisma.session.deleteMany).toHaveBeenCalledWith({ where: { id: 'session-1' } });
+      expect(prisma.session.deleteMany).toHaveBeenCalledWith({
+        where: { id: 'session-1' },
+      });
     });
   });
 

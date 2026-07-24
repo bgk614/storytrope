@@ -32,7 +32,10 @@ export class UsersController {
   @Get()
   @UseGuards(SessionAuthGuard, AdminGuard)
   async findAll(@Query() query: PaginationQueryDto) {
-    const users = await this.userService.list({ skip: query.skip, take: query.take ?? 50 });
+    const users = await this.userService.list({
+      skip: query.skip,
+      take: query.take ?? 50,
+    });
     return users.map((user) => new UserDto(user));
   }
 

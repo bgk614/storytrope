@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { getBooks } from "@/lib/api";
+import Link from 'next/link';
+import { getBooks } from '@/lib/api';
 
 const PAGE_SIZE = 20;
 
@@ -17,27 +17,27 @@ export default async function AdminWorksPage({
   const hasNext = works.length === PAGE_SIZE;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Books</h1>
+    <div className='flex flex-col gap-4'>
+      <div className='flex items-center justify-between'>
+        <h1 className='text-xl font-semibold'>Books</h1>
         <Link
-          href="/admin/works/new"
-          className="rounded-md bg-foreground px-4 py-2 text-sm text-background hover:opacity-90"
+          href='/admin/works/new'
+          className='rounded-md bg-foreground px-4 py-2 text-sm text-background hover:opacity-90'
         >
           New book
         </Link>
       </div>
       {works.length === 0 ? (
-        <p className="text-sm text-black/50 dark:text-white/50">No books.</p>
+        <p className='text-sm text-black/50 dark:text-white/50'>No books.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className='flex flex-col gap-2'>
           {works.map((work) => (
             <li
               key={work.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-black/10 p-3 dark:border-white/10"
+              className='flex items-center justify-between gap-3 rounded-lg border border-black/10 p-3 dark:border-white/10'
             >
-              <span className="font-medium">{work.title}</span>
-              <Link href={`/admin/works/${work.id}/edit`} className="text-sm hover:underline">
+              <span className='font-medium'>{work.title}</span>
+              <Link href={`/admin/works/${work.id}/edit`} className='text-sm hover:underline'>
                 Edit
               </Link>
             </li>
@@ -45,11 +45,11 @@ export default async function AdminWorksPage({
         </ul>
       )}
       {(hasPrev || hasNext) && (
-        <div className="flex justify-between text-sm">
+        <div className='flex justify-between text-sm'>
           {hasPrev ? (
             <Link
               href={`/admin/works?skip=${prevSkip}`}
-              className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
             >
               Previous
             </Link>
@@ -59,7 +59,7 @@ export default async function AdminWorksPage({
           {hasNext && (
             <Link
               href={`/admin/works?skip=${nextSkip}`}
-              className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
             >
               Next
             </Link>

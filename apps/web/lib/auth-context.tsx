@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react';
 
 export interface AuthUser {
   email: string;
@@ -14,7 +14,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const STORAGE_KEY = "storytrope_user";
+const STORAGE_KEY = 'storytrope_user';
 
 // The API only exposes login/logout (no "current user" endpoint), so the
 // client remembers who logged in locally. This is a best-effort UI hint,
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) {
-    throw new Error("useAuth must be used within AuthProvider");
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return ctx;
 }

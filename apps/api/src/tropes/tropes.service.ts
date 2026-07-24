@@ -63,7 +63,9 @@ export class TropesService {
 
     try {
       return await this.prisma.$transaction(async (tx) => {
-        const deleted = await tx.tropeLike.deleteMany({ where: { tropeId, userId } });
+        const deleted = await tx.tropeLike.deleteMany({
+          where: { tropeId, userId },
+        });
         if (deleted.count > 0) {
           const updated = await tx.trope.update({
             where: { id: tropeId },

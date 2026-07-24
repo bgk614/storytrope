@@ -9,7 +9,7 @@ import type {
   Work,
   WorkTrope,
   WorkTropeSource,
-} from "./types";
+} from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -25,13 +25,13 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
   });
 
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     const message = body?.message ?? res.statusText;
-    throw new ApiError(res.status, Array.isArray(message) ? message.join(", ") : message);
+    throw new ApiError(res.status, Array.isArray(message) ? message.join(', ') : message);
   }
 
   if (res.status === 204) {
@@ -44,52 +44,57 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 function paginationParams(params: { skip?: number; take?: number } = {}) {
   const search = new URLSearchParams();
-  if (params.skip) search.set("skip", String(params.skip));
-  if (params.take) search.set("take", String(params.take));
+  if (params.skip) search.set('skip', String(params.skip));
+  if (params.take) search.set('take', String(params.take));
   return search;
 }
 
-export function getTropes(
-  topLevelOnly = false,
-  params: { skip?: number; take?: number } = {},
-) {
+export function getTropes(topLevelOnly = false, params: { skip?: number; take?: number } = {}) {
   const search = paginationParams(params);
-  if (topLevelOnly) search.set("topLevelOnly", "true");
+  if (topLevelOnly) search.set('topLevelOnly', 'true');
   const qs = search.toString();
-  return request<Trope[]>(`/tropes${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  return request<Trope[]>(`/tropes${qs ? `?${qs}` : ''}`, {
+    cache: 'no-store',
+  });
 }
 
 export function getTrope(id: string) {
-  return request<Trope>(`/tropes/${id}`, { cache: "no-store" });
+  return request<Trope>(`/tropes/${id}`, { cache: 'no-store' });
 }
 
 export function getTropeChildren(id: string, params: { skip?: number; take?: number } = {}) {
   const qs = paginationParams(params).toString();
-  return request<Trope[]>(`/tropes/${id}/children${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  return request<Trope[]>(`/tropes/${id}/children${qs ? `?${qs}` : ''}`, {
+    cache: 'no-store',
+  });
 }
 
 export function getTropeBooks(id: string, params: { skip?: number; take?: number } = {}) {
   const qs = paginationParams(params).toString();
-  return request<Work[]>(`/tropes/${id}/works${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  return request<Work[]>(`/tropes/${id}/works${qs ? `?${qs}` : ''}`, {
+    cache: 'no-store',
+  });
 }
 
 export function getBooks(params: { skip?: number; take?: number } = {}) {
   const qs = paginationParams(params).toString();
-  return request<Work[]>(`/works${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  return request<Work[]>(`/works${qs ? `?${qs}` : ''}`, { cache: 'no-store' });
 }
 
 export function getBook(id: string) {
-  return request<Work>(`/works/${id}`, { cache: "no-store" });
+  return request<Work>(`/works/${id}`, { cache: 'no-store' });
 }
 
 export function getBookTropes(id: string, params: { skip?: number; take?: number } = {}) {
   const qs = paginationParams(params).toString();
-  return request<Trope[]>(`/works/${id}/tropes${qs ? `?${qs}` : ""}`, { cache: "no-store" });
+  return request<Trope[]>(`/works/${id}/tropes${qs ? `?${qs}` : ''}`, {
+    cache: 'no-store',
+  });
 }
 
 export function getTopTropes(period: RankingPeriod, take = 10) {
   return request<RankingEntry[]>(`/ranking/tropes?period=${period}&take=${take}`, {
-    cache: "no-store",
+    cache: 'no-store',
   });
 }
 
@@ -97,57 +102,57 @@ export function getTopTropes(period: RankingPeriod, take = 10) {
 // httpOnly session cookie set by the API is sent along.
 
 function clientRequest<T>(path: string, init?: RequestInit) {
-  return request<T>(path, { ...init, credentials: "include" });
+  return request<T>(path, { ...init, credentials: 'include' });
 }
 
 export function login(email: string, password: string) {
   return clientRequest<{ success: true }>(`/auth/login`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({ email, password }),
   });
 }
 
 export function logout() {
-  return clientRequest<{ success: true }>(`/auth/logout`, { method: "DELETE" });
+  return clientRequest<{ success: true }>(`/auth/logout`, { method: 'DELETE' });
 }
 
 export function signup(email: string, password: string, nickname: string) {
   return clientRequest<ApiUser>(`/auth/signup`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({ email, password, nickname }),
   });
 }
 
 export function createTrope(dto: { name: string; description?: string; parentId?: string }) {
   return clientRequest<Trope>(`/tropes`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify(dto),
   });
 }
 
 export function likeTrope(id: string) {
   return clientRequest<{ liked: boolean; likeScore: number }>(`/tropes/${id}/like`, {
-    method: "POST",
+    method: 'POST',
   });
 }
 
 export function addBookToTrope(tropeId: string, workId: string) {
   return clientRequest<WorkTrope>(`/tropes/${tropeId}/works`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({ workId }),
   });
 }
 
 export function addTropeToBook(bookId: string, tropeId: string) {
   return clientRequest<WorkTrope>(`/works/${bookId}/tropes`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({ tropeId }),
   });
 }
 
 export function voteWorkTrope(tropeId: string, bookId: string, voteType: VoteType) {
   return clientRequest<{ voteScore: number }>(`/tropes/${tropeId}/works/${bookId}/vote`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify({ voteType }),
   });
 }
@@ -157,11 +162,14 @@ export function voteWorkTrope(tropeId: string, bookId: string, voteType: VoteTyp
 // 클라이언트 컴포넌트에서 clientRequest를 재사용
 
 function adminRequest<T>(path: string, cookieHeader: string) {
-  return request<T>(path, { cache: "no-store", headers: { Cookie: cookieHeader } });
+  return request<T>(path, {
+    cache: 'no-store',
+    headers: { Cookie: cookieHeader },
+  });
 }
 
 export function getCurrentUser(cookieHeader: string) {
-  return adminRequest<AdminUser>("/users/me", cookieHeader);
+  return adminRequest<AdminUser>('/users/me', cookieHeader);
 }
 
 export function adminListUsers(
@@ -169,11 +177,11 @@ export function adminListUsers(
   params: { skip?: number; take?: number } = {},
 ) {
   const qs = paginationParams(params).toString();
-  return adminRequest<AdminUser[]>(`/users${qs ? `?${qs}` : ""}`, cookieHeader);
+  return adminRequest<AdminUser[]>(`/users${qs ? `?${qs}` : ''}`, cookieHeader);
 }
 
 export function adminDeleteUser(id: string) {
-  return clientRequest<void>(`/users/${id}`, { method: "DELETE" });
+  return clientRequest<void>(`/users/${id}`, { method: 'DELETE' });
 }
 
 export function adminListWorkTropeLinks(
@@ -181,13 +189,18 @@ export function adminListWorkTropeLinks(
   params: { skip?: number; take?: number; source?: WorkTropeSource } = {},
 ) {
   const search = paginationParams(params);
-  if (params.source) search.set("source", params.source);
+  if (params.source) search.set('source', params.source);
   const qs = search.toString();
-  return adminRequest<AdminWorkTropeLink[]>(`/admin/work-tropes${qs ? `?${qs}` : ""}`, cookieHeader);
+  return adminRequest<AdminWorkTropeLink[]>(
+    `/admin/work-tropes${qs ? `?${qs}` : ''}`,
+    cookieHeader,
+  );
 }
 
 export function adminDeleteWorkTropeLink(workId: string, tropeId: string) {
-  return clientRequest<void>(`/works/${workId}/tropes/${tropeId}`, { method: "DELETE" });
+  return clientRequest<void>(`/works/${workId}/tropes/${tropeId}`, {
+    method: 'DELETE',
+  });
 }
 
 export interface AdminWorkInput {
@@ -200,18 +213,18 @@ export interface AdminWorkInput {
 
 export function adminCreateWork(dto: AdminWorkInput) {
   return clientRequest<Work>(`/works`, {
-    method: "POST",
+    method: 'POST',
     body: JSON.stringify(dto),
   });
 }
 
 export function adminUpdateWork(id: string, dto: Partial<AdminWorkInput>) {
   return clientRequest<Work>(`/works/${id}`, {
-    method: "PATCH",
+    method: 'PATCH',
     body: JSON.stringify(dto),
   });
 }
 
 export function adminDeleteWork(id: string) {
-  return clientRequest<void>(`/works/${id}`, { method: "DELETE" });
+  return clientRequest<void>(`/works/${id}`, { method: 'DELETE' });
 }

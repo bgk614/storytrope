@@ -54,12 +54,18 @@ export class TropesController {
 
   @Get(':id/works')
   async findWorks(@Param('id') id: string, @Query() query: PaginationQueryDto) {
-    return this.workTropeService.worksOfTrope(id, { skip: query.skip, take: query.take ?? 20 });
+    return this.workTropeService.worksOfTrope(id, {
+      skip: query.skip,
+      take: query.take ?? 20,
+    });
   }
 
   @Get(':id/children')
   async findChildren(@Param('id') id: string, @Query() query: PaginationQueryDto) {
-    return this.tropeService.children(id, { skip: query.skip, take: query.take ?? 100 });
+    return this.tropeService.children(id, {
+      skip: query.skip,
+      take: query.take ?? 100,
+    });
   }
 
   @UseGuards(SessionAuthGuard)

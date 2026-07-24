@@ -46,7 +46,10 @@ describe('WorkController', () => {
 
       await controller.findAll({});
 
-      expect(workService.works).toHaveBeenCalledWith({ skip: undefined, take: 20 });
+      expect(workService.works).toHaveBeenCalledWith({
+        skip: undefined,
+        take: 20,
+      });
     });
 
     it('skip/take 쿼리 그대로 전달', async () => {

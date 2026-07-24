@@ -119,11 +119,17 @@ describe('WorkService', () => {
   describe('createWork', () => {
     it('기존 저자가 있으면 재사용', async () => {
       prisma.work.create.mockResolvedValue({ id: 'work-1' });
-      prisma.author.findFirst.mockResolvedValue({ id: 'author-1', name: '기존 저자' });
+      prisma.author.findFirst.mockResolvedValue({
+        id: 'author-1',
+        name: '기존 저자',
+      });
       const created = { id: 'work-1' };
       prisma.work.findUniqueOrThrow.mockResolvedValue(created);
 
-      const result = await service.createWork({ title: '제목', authorNames: ['기존 저자'] });
+      const result = await service.createWork({
+        title: '제목',
+        authorNames: ['기존 저자'],
+      });
 
       expect(result).toBe(created);
       expect(prisma.author.create).not.toHaveBeenCalled();
@@ -135,12 +141,17 @@ describe('WorkService', () => {
     it('저자가 없으면 새로 생성', async () => {
       prisma.work.create.mockResolvedValue({ id: 'work-1' });
       prisma.author.findFirst.mockResolvedValue(null);
-      prisma.author.create.mockResolvedValue({ id: 'author-new', name: '새 저자' });
+      prisma.author.create.mockResolvedValue({
+        id: 'author-new',
+        name: '새 저자',
+      });
       prisma.work.findUniqueOrThrow.mockResolvedValue({ id: 'work-1' });
 
       await service.createWork({ title: '제목', authorNames: ['새 저자'] });
 
-      expect(prisma.author.create).toHaveBeenCalledWith({ data: { name: '새 저자' } });
+      expect(prisma.author.create).toHaveBeenCalledWith({
+        data: { name: '새 저자' },
+      });
       expect(prisma.workAuthor.create).toHaveBeenCalledWith({
         data: { workId: 'work-1', authorId: 'author-new' },
       });
@@ -158,12 +169,17 @@ describe('WorkService', () => {
 
     it('authorNames 주어지면 기존 저자 연결 전체 교체', async () => {
       prisma.work.findUnique.mockResolvedValue({ id: 'work-1' });
-      prisma.author.findFirst.mockResolvedValue({ id: 'author-1', name: '저자' });
+      prisma.author.findFirst.mockResolvedValue({
+        id: 'author-1',
+        name: '저자',
+      });
       prisma.work.findUniqueOrThrow.mockResolvedValue({ id: 'work-1' });
 
       await service.updateWork('work-1', { authorNames: ['저자'] });
 
-      expect(prisma.workAuthor.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
+      expect(prisma.workAuthor.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
       expect(prisma.workAuthor.create).toHaveBeenCalledWith({
         data: { workId: 'work-1', authorId: 'author-1' },
       });
@@ -191,14 +207,30 @@ describe('WorkService', () => {
 
       await service.deleteWork('work-1');
 
-      expect(prisma.workAuthor.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
-      expect(prisma.workTropeVote.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
-      expect(prisma.workTrope.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
-      expect(prisma.workLike.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
-      expect(prisma.userBook.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
-      expect(prisma.workSubject.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
-      expect(prisma.edition.deleteMany).toHaveBeenCalledWith({ where: { workId: 'work-1' } });
-      expect(prisma.work.delete).toHaveBeenCalledWith({ where: { id: 'work-1' } });
+      expect(prisma.workAuthor.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
+      expect(prisma.workTropeVote.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
+      expect(prisma.workTrope.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
+      expect(prisma.workLike.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
+      expect(prisma.userBook.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
+      expect(prisma.workSubject.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
+      expect(prisma.edition.deleteMany).toHaveBeenCalledWith({
+        where: { workId: 'work-1' },
+      });
+      expect(prisma.work.delete).toHaveBeenCalledWith({
+        where: { id: 'work-1' },
+      });
     });
   });
 });

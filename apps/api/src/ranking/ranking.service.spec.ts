@@ -82,7 +82,10 @@ describe('RankingService', () => {
       omit: { description: true },
     });
     expect(result).toHaveLength(1);
-    expect(result[0]).toEqual({ trope: { id: 'trope-2', name: 'B' }, score: 2 });
+    expect(result[0]).toEqual({
+      trope: { id: 'trope-2', name: 'B' },
+      score: 2,
+    });
   });
 
   it('기간 시작 시점부터 조회', async () => {

@@ -47,10 +47,15 @@ export class WorksService {
         const author =
           (await tx.author.findFirst({ where: { name: trimmed } })) ??
           (await tx.author.create({ data: { name: trimmed } }));
-        await tx.workAuthor.create({ data: { workId: work.id, authorId: author.id } });
+        await tx.workAuthor.create({
+          data: { workId: work.id, authorId: author.id },
+        });
       }
 
-      return tx.work.findUniqueOrThrow({ where: { id: work.id }, include: workListInclude });
+      return tx.work.findUniqueOrThrow({
+        where: { id: work.id },
+        include: workListInclude,
+      });
     });
   }
 
@@ -80,11 +85,16 @@ export class WorksService {
           const author =
             (await tx.author.findFirst({ where: { name: trimmed } })) ??
             (await tx.author.create({ data: { name: trimmed } }));
-          await tx.workAuthor.create({ data: { workId: id, authorId: author.id } });
+          await tx.workAuthor.create({
+            data: { workId: id, authorId: author.id },
+          });
         }
       }
 
-      return tx.work.findUniqueOrThrow({ where: { id }, include: workListInclude });
+      return tx.work.findUniqueOrThrow({
+        where: { id },
+        include: workListInclude,
+      });
     });
   }
 

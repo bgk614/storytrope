@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
-import Link from "next/link";
-import { DeleteUserButton } from "@/components/admin/delete-user-button";
-import { adminListUsers } from "@/lib/api";
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { DeleteUserButton } from '@/components/admin/delete-user-button';
+import { adminListUsers } from '@/lib/api';
 
 const PAGE_SIZE = 50;
 
@@ -20,20 +20,20 @@ export default async function AdminUsersPage({
   const hasNext = users.length === PAGE_SIZE;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Users</h1>
+    <div className='flex flex-col gap-4'>
+      <h1 className='text-xl font-semibold'>Users</h1>
       {users.length === 0 ? (
-        <p className="text-sm text-black/50 dark:text-white/50">No users.</p>
+        <p className='text-sm text-black/50 dark:text-white/50'>No users.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className='flex flex-col gap-2'>
           {users.map((user) => (
             <li
               key={user.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-black/10 p-3 dark:border-white/10"
+              className='flex items-center justify-between gap-3 rounded-lg border border-black/10 p-3 dark:border-white/10'
             >
               <div>
-                <p className="font-medium">{user.nickname}</p>
-                <p className="text-sm text-black/60 dark:text-white/60">
+                <p className='font-medium'>{user.nickname}</p>
+                <p className='text-sm text-black/60 dark:text-white/60'>
                   {user.email} · {user.role}
                 </p>
               </div>
@@ -43,11 +43,11 @@ export default async function AdminUsersPage({
         </ul>
       )}
       {(hasPrev || hasNext) && (
-        <div className="flex justify-between text-sm">
+        <div className='flex justify-between text-sm'>
           {hasPrev ? (
             <Link
               href={`/admin/users?skip=${prevSkip}`}
-              className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
             >
               Previous
             </Link>
@@ -57,7 +57,7 @@ export default async function AdminUsersPage({
           {hasNext && (
             <Link
               href={`/admin/users?skip=${nextSkip}`}
-              className="rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+              className='rounded-md border border-black/10 px-3 py-1.5 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
             >
               Next
             </Link>

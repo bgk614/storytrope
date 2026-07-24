@@ -259,7 +259,10 @@ describe('TropeService', () => {
     });
 
     it('parentId가 null이면 부모 해제', async () => {
-      prisma.trope.findUnique.mockResolvedValueOnce({ id: 'trope-1', parentId: 'trope-2' });
+      prisma.trope.findUnique.mockResolvedValueOnce({
+        id: 'trope-1',
+        parentId: 'trope-2',
+      });
       const updated = { id: 'trope-1', parentId: null };
       prisma.trope.update.mockResolvedValue(updated);
 

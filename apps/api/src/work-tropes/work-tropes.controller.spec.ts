@@ -14,7 +14,11 @@ describe('WorkTropesController', () => {
   };
 
   beforeEach(async () => {
-    workTropesService = { tropesOfWork: jest.fn(), linkTropeToWork: jest.fn(), unlink: jest.fn() };
+    workTropesService = {
+      tropesOfWork: jest.fn(),
+      linkTropeToWork: jest.fn(),
+      unlink: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WorkTropesController],
@@ -52,7 +56,10 @@ describe('WorkTropesController', () => {
     it('현재 사용자로 트로프-작품 연결', async () => {
       const linked = { workId: 'work-1', tropeId: 'trope-1' };
       workTropesService.linkTropeToWork.mockResolvedValue(linked);
-      const user: AuthenticatedUser = { userId: 'user-1', sessionId: 'session-1' };
+      const user: AuthenticatedUser = {
+        userId: 'user-1',
+        sessionId: 'session-1',
+      };
 
       const result = await controller.addTrope('work-1', { tropeId: 'trope-1' }, user);
 
