@@ -2,12 +2,20 @@
   "name": "storytrope",
   "private": true,
   "scripts": {
-    "prepare": "husky",
-    "format": "prettier --write \"*.{md,mjs,json,yaml,yml}\" && pnpm -r run format"
+    "prepare": "husky || true",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "prettier": "^3.4.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt",
+      "prisma",
+      "@prisma/client",
+      "@prisma/engines"
+    ]
   }
 }
