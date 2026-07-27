@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "prepare": "husky || true",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "dev": "pnpm -r --parallel run dev"
   },
   "devDependencies": {
     "husky": "^9.1.7",
