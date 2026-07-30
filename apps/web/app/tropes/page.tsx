@@ -33,6 +33,21 @@ export default async function TropesPage({
         <CreateTropeForm />
       </div>
 
+      <form action='/search' className='flex gap-2'>
+        <input
+          type='search'
+          name='query'
+          placeholder='Search tropes'
+          className='flex-1 rounded-md border border-black/10 px-3 py-2 text-sm dark:border-white/10 dark:bg-transparent'
+        />
+        <button
+          type='submit'
+          className='rounded-md bg-foreground px-4 py-2 text-sm text-background hover:opacity-90'
+        >
+          Search
+        </button>
+      </form>
+
       <div className='flex gap-2 text-sm'>
         <Link
           href='/tropes'
