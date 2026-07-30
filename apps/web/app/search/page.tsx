@@ -38,7 +38,7 @@ export default async function SearchPage({
         />
         <button
           type='submit'
-          className='rounded-md bg-foreground px-4 py-2 text-sm text-background hover:opacity-90'
+          className='rounded-md border border-black/10 px-4 py-2 text-sm hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10'
         >
           Search
         </button>

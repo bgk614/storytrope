@@ -43,7 +43,11 @@ export function NavBar() {
         </Link>
         <nav className='flex items-center gap-5 text-sm'>
           {links.map((link) => (
-            <Link key={link.href} href={link.href} className='hover:underline'>
+            <Link
+              key={link.href}
+              href={link.href}
+              className='text-black/60 hover:text-foreground hover:underline dark:text-white/60'
+            >
               {link.label}
             </Link>
           ))}
@@ -62,7 +66,10 @@ export function NavBar() {
           ) : (
             ready && (
               <span className='flex items-center gap-3'>
-                <Link href='/login' className='hover:underline'>
+                <Link
+                  href='/login'
+                  className='text-black/60 hover:text-foreground hover:underline dark:text-white/60'
+                >
                   Log in
                 </Link>
                 <Link
