@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AddTropeToBookForm } from '@/components/add-trope-to-book-form';
@@ -39,15 +40,29 @@ export default async function BookDetailPage({
 
   return (
     <div className='flex flex-col gap-10'>
-      <section className='flex flex-col gap-2'>
-        <h1 className='text-2xl font-semibold'>{book.title}</h1>
-        {authorNames && <p className='text-black/60 dark:text-white/60'>{authorNames}</p>}
-        {book.firstPublishDate && (
-          <p className='text-sm text-black/40 dark:text-white/40'>{book.firstPublishDate}</p>
+      <section className='flex gap-6'>
+        {book.coverId && (
+          <div className='h-48 w-32 flex-shrink-0 overflow-hidden rounded bg-black/5 dark:bg-white/10'>
+            <Image
+              src={`https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`}
+              alt=''
+              width={128}
+              height={192}
+              preload
+              className='h-full w-full object-cover'
+            />
+          </div>
         )}
-        {book.description && (
-          <p className='mt-2 text-black/70 dark:text-white/70'>{book.description}</p>
-        )}
+        <div className='flex flex-col gap-2'>
+          <h1 className='text-2xl font-semibold'>{book.title}</h1>
+          {authorNames && <p className='text-black/60 dark:text-white/60'>{authorNames}</p>}
+          {book.firstPublishDate && (
+            <p className='text-sm text-black/40 dark:text-white/40'>{book.firstPublishDate}</p>
+          )}
+          {book.description && (
+            <p className='mt-2 text-black/70 dark:text-white/70'>{book.description}</p>
+          )}
+        </div>
       </section>
 
       <section className='flex flex-col gap-3'>
