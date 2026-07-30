@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '../../common/pagination-query.dto';
 
 export class ListTropesQueryDto extends PaginationQueryDto {
@@ -7,4 +7,8 @@ export class ListTropesQueryDto extends PaginationQueryDto {
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   topLevelOnly?: boolean;
+
+  @IsOptional()
+  @IsString()
+  query?: string;
 }

@@ -103,6 +103,21 @@ describe('api request 헬퍼', () => {
     expect(url).toContain('/works?skip=10&take=20');
   });
 
+  it('query를 쿼리 파라미터로 전달', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue(
+      mockFetchResponse({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve([]),
+      }),
+    );
+
+    await getBooks({ query: '해리포터' });
+
+    const [url] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toContain(`/works?query=${encodeURIComponent('해리포터')}`);
+  });
+
   it('topLevelOnly가 true면 쿼리에 반영', async () => {
     (global.fetch as jest.Mock).mockResolvedValue(
       mockFetchResponse({

@@ -96,6 +96,19 @@ describe('TropesController', () => {
       });
     });
 
+    it('query 쿼리 그대로 전달', async () => {
+      tropeService.tropes.mockResolvedValue([]);
+
+      await controller.findAll({ query: '오해' });
+
+      expect(tropeService.tropes).toHaveBeenCalledWith({
+        topLevelOnly: false,
+        skip: undefined,
+        take: 100,
+        query: '오해',
+      });
+    });
+
     it('명시한 skip/take 전달', async () => {
       tropeService.tropes.mockResolvedValue([]);
 

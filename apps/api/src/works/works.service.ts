@@ -13,11 +13,25 @@ const workListInclude = {
 export class WorksService {
   constructor(private prisma: PrismaService) {}
 
-  async works(parameters: { skip?: number; take?: number }) {
-    const { skip, take } = parameters;
+  async works(parameters: { skip?: number; take?: number; query?: string }) {
+    const { skip, take, query } = parameters;
+    const trimmedQuery = query?.trim();
+
     return this.prisma.work.findMany({
       skip,
       take,
+      where: trimmedQuery
+        ? {
+            OR: [
+              { title: { contains: trimmedQuery, mode: 'insensitive' } },
+              {
+                authors: {
+                  some: { author: { name: { contains: trimmedQuery, mode: 'insensitive' } } },
+                },
+              },
+            ],
+          }
+        : undefined,
       orderBy: { createdAt: 'desc' },
       include: workListInclude,
     });

@@ -85,7 +85,38 @@ describe('WorkService', () => {
       await service.works({});
 
       expect(prisma.work.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ skip: undefined, take: undefined }),
+        expect.objectContaining({ skip: undefined, take: undefined, where: undefined }),
+      );
+    });
+
+    it('query 주어지면 제목/저자명 대소문자 무시 검색', async () => {
+      prisma.work.findMany.mockResolvedValue([]);
+
+      await service.works({ query: '해리' });
+
+      expect(prisma.work.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            OR: [
+              { title: { contains: '해리', mode: 'insensitive' } },
+              {
+                authors: {
+                  some: { author: { name: { contains: '해리', mode: 'insensitive' } } },
+                },
+              },
+            ],
+          },
+        }),
+      );
+    });
+
+    it('q가 공백뿐이면 검색 조건 없음', async () => {
+      prisma.work.findMany.mockResolvedValue([]);
+
+      await service.works({ q: ' '.repeat(3) });
+
+      expect(prisma.work.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: undefined }),
       );
     });
   });

@@ -40,16 +40,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-// Reads — safe to call from Server Components, no user session needed.
+// 조회 — 사용자 세션 없이 Server Component에서 호출해도 안전
 
-function paginationParams(params: { skip?: number; take?: number } = {}) {
+function paginationParams(params: { skip?: number; take?: number; query?: string } = {}) {
   const search = new URLSearchParams();
   if (params.skip) search.set('skip', String(params.skip));
   if (params.take) search.set('take', String(params.take));
+  if (params.query) search.set('query', params.query);
   return search;
 }
 
-export function getTropes(topLevelOnly = false, params: { skip?: number; take?: number } = {}) {
+export function getTropes(
+  topLevelOnly = false,
+  params: { skip?: number; take?: number; query?: string } = {},
+) {
   const search = paginationParams(params);
   if (topLevelOnly) search.set('topLevelOnly', 'true');
   const qs = search.toString();
@@ -76,7 +80,7 @@ export function getTropeBooks(id: string, params: { skip?: number; take?: number
   });
 }
 
-export function getBooks(params: { skip?: number; take?: number } = {}) {
+export function getBooks(params: { skip?: number; take?: number; query?: string } = {}) {
   const qs = paginationParams(params).toString();
   return request<Work[]>(`/works${qs ? `?${qs}` : ''}`, { cache: 'no-store' });
 }

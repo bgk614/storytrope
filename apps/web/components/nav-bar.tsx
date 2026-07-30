@@ -10,6 +10,7 @@ import { useState } from 'react';
 const links = [
   { href: '/tropes', label: 'Tropes' },
   { href: '/books', label: 'Books' },
+  { href: '/search', label: 'Search' },
   { href: '/rankings', label: 'Rankings' },
 ];
 

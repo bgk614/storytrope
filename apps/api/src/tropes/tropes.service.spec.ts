@@ -79,6 +79,30 @@ describe('TropeService', () => {
         expect.objectContaining({ where: undefined }),
       );
     });
+
+    it('query 주어지면 이름 대소문자 무시 검색', async () => {
+      prisma.trope.findMany.mockResolvedValue([]);
+
+      await service.tropes({ query: '오해' });
+
+      expect(prisma.trope.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { name: { contains: '오해', mode: 'insensitive' } },
+        }),
+      );
+    });
+
+    it('topLevelOnly와 query 함께 주어지면 조건 결합', async () => {
+      prisma.trope.findMany.mockResolvedValue([]);
+
+      await service.tropes({ topLevelOnly: true, query: '오해' });
+
+      expect(prisma.trope.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { parentId: null, name: { contains: '오해', mode: 'insensitive' } },
+        }),
+      );
+    });
   });
 
   describe('trope', () => {

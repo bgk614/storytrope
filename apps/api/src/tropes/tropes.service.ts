@@ -12,10 +12,21 @@ import { CreateTropeDto } from './dtos/create-trope.dto.js';
 export class TropesService {
   constructor(private prisma: PrismaService) {}
 
-  async tropes(parameters: { topLevelOnly?: boolean; skip?: number; take?: number }) {
-    const { topLevelOnly, skip, take } = parameters;
+  async tropes(parameters: {
+    topLevelOnly?: boolean;
+    skip?: number;
+    take?: number;
+    query?: string;
+  }) {
+    const { topLevelOnly, skip, take, query } = parameters;
+    const trimmedQuery = query?.trim();
+
+    const where: Prisma.TropeWhereInput = {};
+    if (topLevelOnly) where.parentId = null;
+    if (trimmedQuery) where.name = { contains: trimmedQuery, mode: 'insensitive' };
+
     return this.prisma.trope.findMany({
-      where: topLevelOnly ? { parentId: null } : undefined,
+      where: topLevelOnly || trimmedQuery ? where : undefined,
       orderBy: { name: 'asc' },
       omit: { description: true },
       skip,

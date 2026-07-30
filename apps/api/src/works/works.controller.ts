@@ -15,8 +15,8 @@ import {
 
 import { AdminGuard } from '../auth/admin.guard';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
-import { PaginationQueryDto } from '../common/pagination-query.dto';
 import { CreateWorkDto } from './dto/create-work.dto';
+import { ListWorksQueryDto } from './dto/list-works.dto';
 import { UpdateWorkDto } from './dto/update-work.dto';
 import { WorksService } from './works.service';
 
@@ -25,10 +25,11 @@ export class WorksController {
   constructor(private readonly worksService: WorksService) {}
 
   @Get()
-  async findAll(@Query() query: PaginationQueryDto) {
+  async findAll(@Query() query: ListWorksQueryDto) {
     return this.worksService.works({
       skip: query.skip,
       take: query.take ?? 20,
+      query: query.query,
     });
   }
 

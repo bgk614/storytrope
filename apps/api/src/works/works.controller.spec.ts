@@ -57,7 +57,19 @@ describe('WorkController', () => {
 
       await controller.findAll({ skip: 5, take: 15 });
 
-      expect(workService.works).toHaveBeenCalledWith({ skip: 5, take: 15 });
+      expect(workService.works).toHaveBeenCalledWith({ skip: 5, take: 15, query: undefined });
+    });
+
+    it('query 쿼리 그대로 전달', async () => {
+      workService.works.mockResolvedValue([]);
+
+      await controller.findAll({ query: '해리포터' });
+
+      expect(workService.works).toHaveBeenCalledWith({
+        skip: undefined,
+        take: 20,
+        query: '해리포터',
+      });
     });
   });
 

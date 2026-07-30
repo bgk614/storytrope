@@ -40,6 +40,7 @@ export class TropesController {
       topLevelOnly: query.topLevelOnly ?? false,
       skip: query.skip,
       take: query.take ?? 100,
+      query: query.query,
     });
   }
 
