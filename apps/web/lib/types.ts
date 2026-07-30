@@ -27,6 +27,7 @@ export interface Work {
   coverId: number | null;
   likeScore: number;
   authors?: WorkAuthor[];
+  tropes?: WorkTrope[];
   createdAt: string;
   updatedAt: string;
 }

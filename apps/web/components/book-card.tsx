@@ -2,11 +2,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Work } from '@/lib/types';
 
+function extractPublishYear(firstPublishDate: string) {
+  return firstPublishDate.match(/\d{4}/)?.[0] ?? null;
+}
+
+function topTropeOf(work: Work) {
+  if (!work.tropes?.length) return undefined;
+  return work.tropes.reduce((top, wt) => (wt.voteScore > top.voteScore ? wt : top));
+}
+
 export function BookCard({ work }: { work: Work }) {
   const authorNames = work.authors
     ?.map((wa) => wa.author?.name)
     .filter(Boolean)
     .join(', ');
+  const publishYear = work.firstPublishDate && extractPublishYear(work.firstPublishDate);
+  const topTrope = topTropeOf(work);
 
   return (
     <Link
@@ -29,8 +40,13 @@ export function BookCard({ work }: { work: Work }) {
         {authorNames && (
           <p className='mt-1 text-sm text-black/60 dark:text-white/60'>{authorNames}</p>
         )}
-        {work.firstPublishDate && (
-          <p className='mt-1 text-xs text-black/40 dark:text-white/40'>{work.firstPublishDate}</p>
+        {publishYear && (
+          <p className='mt-1 text-xs text-black/40 dark:text-white/40'>{publishYear}</p>
+        )}
+        {topTrope?.trope && (
+          <span className='mt-2 inline-block rounded-full border border-black/10 px-2 py-0.5 text-xs text-black/60 dark:border-white/10 dark:text-white/60'>
+            {topTrope.trope.name}
+          </span>
         )}
       </div>
     </Link>
