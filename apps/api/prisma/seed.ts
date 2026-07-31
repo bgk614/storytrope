@@ -1,4 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg';
+import * as bcrypt from 'bcrypt';
 import { PrismaClient } from '../generated/prisma/client';
 import { WorkTropeSource } from '../generated/prisma/enums';
 
@@ -118,13 +119,14 @@ const works = [
 ] as const;
 
 async function seedTestUser() {
+  const passwordHash = await bcrypt.hash('test', 10);
   return prisma.user.upsert({
     where: { email: 'testuser01@test.com' },
     update: {},
     create: {
       email: 'testuser01@test.com',
       nickname: 'testuser01',
-      passwordHash: 'test',
+      passwordHash,
     },
   });
 }
