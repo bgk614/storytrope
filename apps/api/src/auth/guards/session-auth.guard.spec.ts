@@ -1,7 +1,7 @@
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { SessionAuthGuard, SESSION_COOKIE } from './session-auth.guard';
+import { AuthService } from '../auth.service';
+import { SESSION_COOKIE, SessionAuthGuard } from './session-auth.guard';
 
 function contextWithCookies(cookies?: Record<string, string>): ExecutionContext {
   const request: { cookies?: Record<string, string>; user?: unknown } = {

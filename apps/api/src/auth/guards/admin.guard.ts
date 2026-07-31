@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import type { Request } from 'express';
-import { Role } from '../../generated/prisma/client.js';
-import { PrismaService } from '../prisma/prisma.service';
-import type { AuthenticatedUser } from './authenticated-user';
+import { Role } from '../../../generated/prisma/client.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import type { AuthenticatedUser } from '../authenticated-user.js';
 
 @Injectable()
 export class AdminGuard implements CanActivate {

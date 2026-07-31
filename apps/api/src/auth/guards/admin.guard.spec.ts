@@ -1,8 +1,8 @@
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Role } from '../../generated/prisma/client.js';
-import { PrismaService } from '../prisma/prisma.service';
-import { AdminGuard } from './admin.guard';
+import { Role } from '../../../generated/prisma/client.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { AdminGuard } from './admin.guard.js';
 
 function contextWithUserId(userId?: string): ExecutionContext {
   return {

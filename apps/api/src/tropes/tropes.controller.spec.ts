@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { VoteType } from '../../generated/prisma/enums.js';
 import type { AuthenticatedUser } from '../auth/authenticated-user.js';
-import { SessionAuthGuard } from '../auth/session-auth.guard.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
 import { WorkTropesService } from '../work-tropes/work-tropes.service.js';
 import { TropesController } from './tropes.controller';
 import { TropesService } from './tropes.service.js';

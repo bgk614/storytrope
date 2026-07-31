@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { CreateTropeDto } from './dtos/create-trope.dto.js';
+import { CreateTropeDto } from './dto/create-trope.dto.js';
 
 @Injectable()
 export class TropesService {

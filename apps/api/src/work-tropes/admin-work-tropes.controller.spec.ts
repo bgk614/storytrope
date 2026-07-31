@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AdminGuard } from '../auth/admin.guard';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { WorkTropeSource } from '../../generated/prisma/client.js';
+import { AdminGuard } from '../auth/guards/admin.guard.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
 import { AdminWorkTropesController } from './admin-work-tropes.controller';
 import { WorkTropesService } from './work-tropes.service';
 

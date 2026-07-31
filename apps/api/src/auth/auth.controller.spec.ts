@@ -3,7 +3,7 @@ import type { Response } from 'express';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './authenticated-user';
-import { SessionAuthGuard } from './session-auth.guard';
+import { SessionAuthGuard } from './guards/session-auth.guard';
 
 describe('AuthController', () => {
   let controller: AuthController;

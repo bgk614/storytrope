@@ -2,12 +2,12 @@ import { Body, Controller, Delete, Post, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import type { AuthenticatedUser } from './authenticated-user';
-import { CurrentUser } from './decorator/current-user.decorator';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { SignInDto } from './dto/signin.dto';
 import { SignUpDto } from './dto/signup.dto';
 
 import { UserDto } from '../users/dto/user.dto';
-import { SESSION_COOKIE, SessionAuthGuard } from './session-auth.guard';
+import { SESSION_COOKIE, SessionAuthGuard } from './guards/session-auth.guard';
 
 @Controller('auth')
 export class AuthController {

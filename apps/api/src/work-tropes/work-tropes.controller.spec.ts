@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AdminGuard } from '../auth/admin.guard';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { WorkTropesController } from './work-tropes.controller';
 import { WorkTropesService } from './work-tropes.service';
 

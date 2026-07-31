@@ -9,10 +9,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AdminGuard } from '../auth/admin.guard';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
-import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AdminGuard } from '../auth/guards/admin.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PaginationQueryDto } from '../common/pagination-query.dto';
 import { PublicUserDto } from './dto/public-user.dto';
 import { UserDto } from './dto/user.dto';

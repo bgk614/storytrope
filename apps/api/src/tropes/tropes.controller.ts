@@ -10,15 +10,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
-import { CurrentUser } from '../auth/decorator/current-user.decorator';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { PaginationQueryDto } from '../common/pagination-query.dto';
-import { VoteDto } from './dtos/vote.dto';
 import { AddWorkToTropeDto } from '../work-tropes/work-tropes.dto';
 import { WorkTropesService } from '../work-tropes/work-tropes.service';
-import { CreateTropeDto } from './dtos/create-trope.dto';
-import { ListTropesQueryDto } from './dtos/list-tropes.dto';
-import { SetParentDto } from './dtos/set-parent.dto';
+import { CreateTropeDto } from './dto/create-trope.dto';
+import { ListTropesQueryDto } from './dto/list-tropes.dto';
+import { SetParentDto } from './dto/set-parent.dto';
+import { VoteDto } from './dto/vote.dto';
 import { TropesService } from './tropes.service';
 
 @Controller('tropes')

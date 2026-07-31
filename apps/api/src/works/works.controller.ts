@@ -13,8 +13,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { AdminGuard } from '../auth/admin.guard';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { CreateWorkDto } from './dto/create-work.dto';
 import { ListWorksQueryDto } from './dto/list-works.dto';
 import { UpdateWorkDto } from './dto/update-work.dto';

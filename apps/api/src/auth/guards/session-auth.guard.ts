@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { Request } from 'express';
-import type { AuthenticatedUser } from './authenticated-user';
-import { AuthService } from './auth.service';
+import { AuthService } from '../auth.service';
+import type { AuthenticatedUser } from '../authenticated-user';
 
 export const SESSION_COOKIE = 'session_id';
 

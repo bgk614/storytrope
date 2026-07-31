@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AdminGuard } from '../auth/admin.guard';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { WorksController } from './works.controller';
 import { WorksService } from './works.service';
 

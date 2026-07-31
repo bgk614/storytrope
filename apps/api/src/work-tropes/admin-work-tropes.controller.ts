@@ -1,8 +1,8 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { AdminGuard } from '../auth/admin.guard';
-import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { WorkTropeSource } from '../../generated/prisma/client.js';
+import { AdminGuard } from '../auth/guards/admin.guard.js';
+import { SessionAuthGuard } from '../auth/guards/session-auth.guard.js';
 import { PaginationQueryDto } from '../common/pagination-query.dto';
 import { WorkTropesService } from './work-tropes.service';
 
