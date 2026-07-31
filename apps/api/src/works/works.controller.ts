@@ -33,6 +33,11 @@ export class WorksController {
     });
   }
 
+  @Get('count')
+  async count(@Query() query: ListWorksQueryDto) {
+    return { total: await this.worksService.worksCount(query.query) };
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const work = await this.worksService.work({ id });

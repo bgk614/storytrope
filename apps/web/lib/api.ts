@@ -62,6 +62,15 @@ export function getTropes(
   });
 }
 
+export function getTropesCount(topLevelOnly = false, query?: string) {
+  const search = paginationParams({ query });
+  if (topLevelOnly) search.set('topLevelOnly', 'true');
+  const qs = search.toString();
+  return request<{ total: number }>(`/tropes/count${qs ? `?${qs}` : ''}`, {
+    cache: 'no-store',
+  });
+}
+
 export function getTrope(id: string) {
   return request<Trope>(`/tropes/${id}`, { cache: 'no-store' });
 }
@@ -83,6 +92,13 @@ export function getTropeBooks(id: string, params: { skip?: number; take?: number
 export function getBooks(params: { skip?: number; take?: number; query?: string } = {}) {
   const qs = paginationParams(params).toString();
   return request<Work[]>(`/works${qs ? `?${qs}` : ''}`, { cache: 'no-store' });
+}
+
+export function getBooksCount(query?: string) {
+  const qs = paginationParams({ query }).toString();
+  return request<{ total: number }>(`/works/count${qs ? `?${qs}` : ''}`, {
+    cache: 'no-store',
+  });
 }
 
 export function getBook(id: string) {

@@ -12,6 +12,7 @@ describe('TropesController', () => {
   let tropeService: {
     createTrope: jest.Mock;
     tropes: jest.Mock;
+    tropesCount: jest.Mock;
     trope: jest.Mock;
     children: jest.Mock;
     setParent: jest.Mock;
@@ -28,6 +29,7 @@ describe('TropesController', () => {
     tropeService = {
       createTrope: jest.fn(),
       tropes: jest.fn(),
+      tropesCount: jest.fn(),
       trope: jest.fn(),
       children: jest.fn(),
       setParent: jest.fn(),
@@ -119,6 +121,25 @@ describe('TropesController', () => {
         skip: 10,
         take: 5,
       });
+    });
+  });
+
+  describe('count', () => {
+    it('tropeService.tropesCount 결과를 total로 감싸 반환', async () => {
+      tropeService.tropesCount.mockResolvedValue(4);
+
+      const result = await controller.count({ topLevelOnly: true, query: '오해' });
+
+      expect(result).toEqual({ total: 4 });
+      expect(tropeService.tropesCount).toHaveBeenCalledWith(true, '오해');
+    });
+
+    it('topLevelOnly 생략 시 false로 전달', async () => {
+      tropeService.tropesCount.mockResolvedValue(4);
+
+      await controller.count({});
+
+      expect(tropeService.tropesCount).toHaveBeenCalledWith(false, undefined);
     });
   });
 

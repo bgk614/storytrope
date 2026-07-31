@@ -1,4 +1,13 @@
-import { adminCreateWork, getBooks, getCurrentUser, getTopTropes, getTropes, login } from './api';
+import {
+  adminCreateWork,
+  getBooks,
+  getBooksCount,
+  getCurrentUser,
+  getTopTropes,
+  getTropes,
+  getTropesCount,
+  login,
+} from './api';
 
 function mockFetchResponse(init: {
   ok: boolean;
@@ -131,6 +140,38 @@ describe('api request 헬퍼', () => {
 
     const [url] = (global.fetch as jest.Mock).mock.calls[0];
     expect(url).toContain('/tropes?topLevelOnly=true');
+  });
+
+  it('getBooksCount는 /works/count에 query 전달', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue(
+      mockFetchResponse({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ total: 3 }),
+      }),
+    );
+
+    await expect(getBooksCount('해리포터')).resolves.toEqual({ total: 3 });
+
+    const [url] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toContain(`/works/count?query=${encodeURIComponent('해리포터')}`);
+  });
+
+  it('getTropesCount는 /tropes/count에 topLevelOnly/query 전달', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue(
+      mockFetchResponse({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ total: 5 }),
+      }),
+    );
+
+    await expect(getTropesCount(true, '오해')).resolves.toEqual({ total: 5 });
+
+    const [url] = (global.fetch as jest.Mock).mock.calls[0];
+    expect(url).toContain('/tropes/count?');
+    expect(url).toContain('topLevelOnly=true');
+    expect(url).toContain(`query=${encodeURIComponent('오해')}`);
   });
 
   it('period/take로 랭킹 조회 쿼리 구성', async () => {

@@ -13,6 +13,7 @@ describe('WorkService', () => {
       create: jest.Mock;
       update: jest.Mock;
       delete: jest.Mock;
+      count: jest.Mock;
     };
     author: { findFirst: jest.Mock; create: jest.Mock };
     workAuthor: { create: jest.Mock; deleteMany: jest.Mock };
@@ -34,6 +35,7 @@ describe('WorkService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        count: jest.fn(),
       },
       author: { findFirst: jest.fn(), create: jest.fn() },
       workAuthor: { create: jest.fn(), deleteMany: jest.fn() },
@@ -118,6 +120,37 @@ describe('WorkService', () => {
       expect(prisma.work.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ where: undefined }),
       );
+    });
+  });
+
+  describe('worksCount', () => {
+    it('query 없으면 조건 없이 카운트', async () => {
+      prisma.work.count.mockResolvedValue(7);
+
+      const result = await service.worksCount();
+
+      expect(result).toBe(7);
+      expect(prisma.work.count).toHaveBeenCalledWith({ where: undefined });
+    });
+
+    it('query 주어지면 제목/저자명 조건으로 카운트', async () => {
+      prisma.work.count.mockResolvedValue(2);
+
+      const result = await service.worksCount('해리');
+
+      expect(result).toBe(2);
+      expect(prisma.work.count).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { title: { contains: '해리', mode: 'insensitive' } },
+            {
+              authors: {
+                some: { author: { name: { contains: '해리', mode: 'insensitive' } } },
+              },
+            },
+          ],
+        },
+      });
     });
   });
 

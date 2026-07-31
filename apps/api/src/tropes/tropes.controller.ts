@@ -44,6 +44,11 @@ export class TropesController {
     });
   }
 
+  @Get('count')
+  async count(@Query() query: ListTropesQueryDto) {
+    return { total: await this.tropeService.tropesCount(query.topLevelOnly ?? false, query.query) };
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const trope = await this.tropeService.trope({ id });

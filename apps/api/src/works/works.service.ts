@@ -15,26 +15,34 @@ export class WorksService {
 
   async works(parameters: { skip?: number; take?: number; query?: string }) {
     const { skip, take, query } = parameters;
-    const trimmedQuery = query?.trim();
 
     return this.prisma.work.findMany({
       skip,
       take,
-      where: trimmedQuery
-        ? {
-            OR: [
-              { title: { contains: trimmedQuery, mode: 'insensitive' } },
-              {
-                authors: {
-                  some: { author: { name: { contains: trimmedQuery, mode: 'insensitive' } } },
-                },
-              },
-            ],
-          }
-        : undefined,
+      where: this.worksWhere(query),
       orderBy: { createdAt: 'desc' },
       include: workListInclude,
     });
+  }
+
+  async worksCount(query?: string): Promise<number> {
+    return this.prisma.work.count({ where: this.worksWhere(query) });
+  }
+
+  private worksWhere(query?: string): Prisma.WorkWhereInput | undefined {
+    const trimmedQuery = query?.trim();
+    if (!trimmedQuery) return undefined;
+
+    return {
+      OR: [
+        { title: { contains: trimmedQuery, mode: 'insensitive' } },
+        {
+          authors: {
+            some: { author: { name: { contains: trimmedQuery, mode: 'insensitive' } } },
+          },
+        },
+      ],
+    };
   }
 
   async work(where: Prisma.WorkWhereUniqueInput) {

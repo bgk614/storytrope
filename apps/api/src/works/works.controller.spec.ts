@@ -9,6 +9,7 @@ describe('WorkController', () => {
   let controller: WorksController;
   let workService: {
     works: jest.Mock;
+    worksCount: jest.Mock;
     work: jest.Mock;
     createWork: jest.Mock;
     updateWork: jest.Mock;
@@ -18,6 +19,7 @@ describe('WorkController', () => {
   beforeEach(async () => {
     workService = {
       works: jest.fn(),
+      worksCount: jest.fn(),
       work: jest.fn(),
       createWork: jest.fn(),
       updateWork: jest.fn(),
@@ -70,6 +72,17 @@ describe('WorkController', () => {
         take: 20,
         query: '해리포터',
       });
+    });
+  });
+
+  describe('count', () => {
+    it('workService.worksCount 결과를 total로 감싸 반환', async () => {
+      workService.worksCount.mockResolvedValue(3);
+
+      const result = await controller.count({ query: '해리포터' });
+
+      expect(result).toEqual({ total: 3 });
+      expect(workService.worksCount).toHaveBeenCalledWith('해리포터');
     });
   });
 

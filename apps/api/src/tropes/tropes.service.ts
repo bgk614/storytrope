@@ -19,19 +19,28 @@ export class TropesService {
     query?: string;
   }) {
     const { topLevelOnly, skip, take, query } = parameters;
-    const trimmedQuery = query?.trim();
-
-    const where: Prisma.TropeWhereInput = {};
-    if (topLevelOnly) where.parentId = null;
-    if (trimmedQuery) where.name = { contains: trimmedQuery, mode: 'insensitive' };
 
     return this.prisma.trope.findMany({
-      where: topLevelOnly || trimmedQuery ? where : undefined,
+      where: this.tropesWhere(topLevelOnly, query),
       orderBy: { name: 'asc' },
       omit: { description: true },
       skip,
       take,
     });
+  }
+
+  async tropesCount(topLevelOnly?: boolean, query?: string): Promise<number> {
+    return this.prisma.trope.count({ where: this.tropesWhere(topLevelOnly, query) });
+  }
+
+  private tropesWhere(topLevelOnly?: boolean, query?: string): Prisma.TropeWhereInput | undefined {
+    const trimmedQuery = query?.trim();
+    if (!topLevelOnly && !trimmedQuery) return undefined;
+
+    const where: Prisma.TropeWhereInput = {};
+    if (topLevelOnly) where.parentId = null;
+    if (trimmedQuery) where.name = { contains: trimmedQuery, mode: 'insensitive' };
+    return where;
   }
 
   async trope(where: Prisma.TropeWhereUniqueInput) {

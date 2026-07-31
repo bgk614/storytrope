@@ -20,6 +20,7 @@ describe('TropeService', () => {
       findUniqueOrThrow: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
     tropeLike: { deleteMany: jest.Mock; create: jest.Mock };
     $transaction: jest.Mock;
@@ -33,6 +34,7 @@ describe('TropeService', () => {
         findUniqueOrThrow: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn(),
       },
       tropeLike: {
         deleteMany: jest.fn(),
@@ -102,6 +104,28 @@ describe('TropeService', () => {
           where: { parentId: null, name: { contains: '오해', mode: 'insensitive' } },
         }),
       );
+    });
+  });
+
+  describe('tropesCount', () => {
+    it('topLevelOnly/query 없으면 조건 없이 카운트', async () => {
+      prisma.trope.count.mockResolvedValue(9);
+
+      const result = await service.tropesCount();
+
+      expect(result).toBe(9);
+      expect(prisma.trope.count).toHaveBeenCalledWith({ where: undefined });
+    });
+
+    it('topLevelOnly와 query 함께 주어지면 조건 결합해 카운트', async () => {
+      prisma.trope.count.mockResolvedValue(1);
+
+      const result = await service.tropesCount(true, '오해');
+
+      expect(result).toBe(1);
+      expect(prisma.trope.count).toHaveBeenCalledWith({
+        where: { parentId: null, name: { contains: '오해', mode: 'insensitive' } },
+      });
     });
   });
 
